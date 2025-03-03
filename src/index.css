@@ -1,84 +1,42 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -96,6 +54,103 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-krutagidon-dark text-foreground;
+    font-family: 'Russo One', sans-serif;
+    background-image: url('/public/lovable-uploads/a58d727b-c7d5-41fb-9b61-eb916b8344f4.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .game-card {
+    @apply relative bg-gradient-to-b p-0.5 rounded-lg overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-card-hover;
+    perspective: 1000px;
+  }
+  
+  .game-card-inner {
+    @apply relative w-full h-full rounded-lg overflow-hidden;
+    transform-style: preserve-3d;
+  }
+
+  .game-card-front, .game-card-back {
+    @apply absolute w-full h-full backface-visibility-hidden;
+  }
+
+  .game-card-back {
+    @apply bg-krutagidon-purple text-white transform rotate-y-180 flex items-center justify-center;
+  }
+
+  .glowing-button {
+    @apply relative overflow-hidden rounded-md px-6 py-3 font-bold uppercase tracking-wider transition-all;
+    background: linear-gradient(90deg, #6e2ca0, #f7941d);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  
+  .glowing-button:hover {
+    @apply transform scale-105;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 0, 0.3);
+  }
+
+  .glass-panel {
+    @apply bg-black/30 backdrop-blur-lg rounded-xl border border-white/10 shadow-xl;
+  }
+
+  .power-icon {
+    @apply inline-flex items-center justify-center;
+    text-shadow: 0 0 5px yellow, 0 0 10px yellow;
+  }
+
+  .chipsin-icon {
+    @apply inline-flex items-center justify-center;
+    text-shadow: 0 0 5px orange, 0 0 10px orange;
+  }
+  
+  .health-bar {
+    @apply h-3 relative overflow-hidden rounded-full bg-gray-700;
+  }
+  
+  .health-bar-fill {
+    @apply h-full transition-all duration-500 ease-out;
+    background: linear-gradient(90deg, #ed1c24, #f7941d);
+  }
+
+  .card-type-legend {
+    @apply border-2 border-yellow-500 bg-krutagidon-purple;
+  }
+  
+  .card-type-spell {
+    @apply border-2 border-krutagidon-blue bg-amber-800;
+  }
+  
+  .card-type-creature {
+    @apply border-2 border-krutagidon-green bg-red-900;
+  }
+  
+  .card-type-artifact {
+    @apply border-2 border-krutagidon-orange bg-blue-900;
+  }
+  
+  .card-type-starter {
+    @apply border-2 border-gray-400 bg-yellow-600;
+  }
+
+  .page-transition-enter {
+    @apply opacity-0;
+  }
+  
+  .page-transition-enter-active {
+    @apply opacity-100 transition-opacity duration-300;
+  }
+  
+  .page-transition-exit {
+    @apply opacity-100;
+  }
+  
+  .page-transition-exit-active {
+    @apply opacity-0 transition-opacity duration-300;
   }
 }
