@@ -180,7 +180,24 @@ export default {
 				'neon': '0 0 5px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 0, 0.5), 0 0 30px rgba(255, 255, 0, 0.2)',
 				'inner-neon': 'inset 0 0 10px rgba(255, 255, 0, 0.5)',
 			},
+			backfaceVisibility: {
+				'hidden': 'hidden',
+				'visible': 'visible',
+			},
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		function({ addUtilities }) {
+			const newUtilities = {
+				'.backface-visibility-hidden': {
+					'backface-visibility': 'hidden',
+				},
+				'.backface-visibility-visible': {
+					'backface-visibility': 'visible',
+				},
+			};
+			addUtilities(newUtilities);
+		}
+	],
 } satisfies Config;

@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
 
 @tailwind base;
@@ -77,11 +76,13 @@
   }
 
   .game-card-front, .game-card-back {
-    @apply absolute w-full h-full backface-visibility-hidden;
+    @apply absolute w-full h-full;
+    backface-visibility: hidden;
   }
 
   .game-card-back {
-    @apply bg-krutagidon-purple text-white transform rotate-y-180 flex items-center justify-center;
+    @apply bg-krutagidon-purple text-white flex items-center justify-center;
+    transform: rotateY(180deg);
   }
 
   .glowing-button {
