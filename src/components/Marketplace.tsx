@@ -1,7 +1,6 @@
-
-import React from 'react';
-import { Card } from '../types/game';
-import GameCard from './GameCard';
+import React from "react";
+import { Card } from "../types/game";
+import GameCard from "./GameCard";
 
 interface MarketplaceProps {
   cards: Card[];
@@ -16,7 +15,7 @@ const Marketplace: React.FC<MarketplaceProps> = ({
   title,
   onBuyCard,
   playerPower,
-  className
+  className,
 }) => {
   return (
     <div className={`glass-panel p-4 ${className}`}>
@@ -26,13 +25,13 @@ const Marketplace: React.FC<MarketplaceProps> = ({
           Available Power: <span className="power-icon">⚡</span> {playerPower}
         </span>
       </h3>
-      
+
       <div className="flex flex-wrap gap-3 justify-center">
         {cards.map((card, index) => (
           <GameCard
             key={`market-${index}`}
             card={card}
-            isPlayable={playerPower >= card.cost}
+            isPlayable={playerPower >= card?.cost}
             className="w-24 h-40 transition-all duration-300 hover:shadow-neon"
             onClick={() => onBuyCard(index)}
           />

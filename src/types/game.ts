@@ -1,7 +1,22 @@
+export type CardType =
+  | "sign"
+  | "spike"
+  | "stick"
+  | "legend"
+  | "wizard"
+  | "creature"
+  | "spell"
+  | "treasure"
+  | "place"
+  | "megachaos"
+  | "chaos"
+  | "familiar"
+  | "madmagic"
+  | "wilting"
+  | "property"
+  | "playerArea";
 
-export type CardType = 'sign' | 'spike' | 'cheesestick' | 'legend' | 'wizard' | 'creature' | 'spell' | 'treasure' | 'place' | 'megachaos' | 'chaos' | 'familiar' | 'madmagic' | 'wilting';
-
-export type CardRarity = 'common' | 'uncommon' | 'rare' | 'legendary';
+// export type CardRarity = "common" | "uncommon" | "rare" | "legendary";
 
 export interface Card {
   id: string;
@@ -12,11 +27,13 @@ export interface Card {
   health?: number;
   description: string;
   effect?: string;
-  rarity: CardRarity;
+  // rarity: CardRarity;
   imagePath?: string;
   isAttack?: boolean;
   isDefense?: boolean;
   isPermanent?: boolean;
+  damage?: number;
+  isImageCard: boolean;
 }
 
 export interface Player {
@@ -39,6 +56,7 @@ export interface Player {
 export interface GameState {
   players: Player[];
   currentPlayerIndex: number;
+  currentPlayerId: string;
   marketplace: Card[];
   legendaryMarketplace: Card[];
   deadWizardTokensRemaining: number;

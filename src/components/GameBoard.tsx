@@ -1,67 +1,131 @@
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { makeMove } from "@/api/socketManager";
+import PlayerArea from "./PlayerArea";
+import Marketplace from "./Marketplace";
+import GameHeader from "./GameHeader";
+import AttackModal from "./AttackModal";
+import DiscardBoard from "./DiscardBoard";
+import { makeMove as makeMoveApi } from "../api/gameApi"; // Импортируем напрямую
+import { RootState } from "@/store/store";
 
-import React, { useState } from 'react';
-import { useGame } from '../context/GameContext';
-import PlayerArea from './PlayerArea';
-import Marketplace from './Marketplace';
-import GameHeader from './GameHeader';
-import AttackModal from './AttackModal';
-import { Player } from '../types/game';
+interface GameBoardProps {
+  game: any;
+  socketGameState: any;
+}
 
-const GameBoard: React.FC = () => {
-  const { gameState, playCard, attackPlayer, buyCard, endTurn } = useGame();
+const GameBoard: React.FC<GameBoardProps> = ({ game, socketGameState }) => {
+  const user = useSelector((state: RootState) => state.auth.user);
   const [attackModalOpen, setAttackModalOpen] = useState(false);
-  const [attackingPlayerIndex, setAttackingPlayerIndex] = useState(0);
-  
-  const currentPlayerIndex = gameState.currentPlayerIndex;
+  const [attackingCardDamage, setAttackingCardDamage] = useState(0);
+
+  if (!game || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white text-xl">Загрузка игры...</div>
+      </div>
+    );
+  }
+
+  const gameState = socketGameState;
+  const currentPlayerIndex = game.currentTurnIndex;
+  const currentPlayerId = game.currentTurn;
   const currentPlayer = gameState.players[currentPlayerIndex];
-  
+  const myPlayer = gameState.players.find((p: any) => p.userId === user?.id);
+
   const handlePlayCard = (cardIndex: number) => {
-    playCard(currentPlayerIndex, cardIndex);
+    const currentCard = currentPlayer.hand[cardIndex];
+    if (currentCard.isAttack) {
+      setAttackingCardDamage(currentCard.damage);
+      setAttackModalOpen(true);
+    }
+    makeMoveApi(user.accessToken, game.id, {
+      type: "play-card",
+      cardId: currentCard.id,
+    })
+      .then(() => {
+        makeMove(game.id, user.id, {
+          type: "play-card",
+          cardId: currentCard.id,
+        });
+      })
+      .catch((error) => {
+        console.error("Ошибка при выполнении хода:", error);
+      });
   };
-  
-  const handleAttackModalOpen = (attackerIndex: number) => {
-    setAttackingPlayerIndex(attackerIndex);
-    setAttackModalOpen(true);
+
+  const handleAttack = (targetId: string, damage: number) => {
+    makeMoveApi(user.accessToken, game.id, { type: "attack", targetId, damage })
+      .then(() => {
+        makeMove(game.id, user.id, { type: "attack", targetId, damage });
+      })
+      .catch((error) => {
+        console.error("Ошибка при атаке:", error);
+      });
   };
-  
-  const handleAttack = (targetIndex: number, damage: number) => {
-    attackPlayer(attackingPlayerIndex, targetIndex, damage);
-  };
-  
+
   const handleBuyCard = (marketplaceIndex: number, isLegendary: boolean) => {
-    buyCard(currentPlayerIndex, marketplaceIndex, isLegendary);
+    makeMoveApi(user.accessToken, game.id, {
+      type: "buy-card",
+      marketplaceIndex,
+      isLegendary,
+    })
+      .then(() => {
+        makeMove(game.id, user.id, {
+          type: "buy-card",
+          marketplaceIndex,
+          isLegendary,
+        });
+      })
+      .catch((error) => {
+        console.error("Ошибка при покупке карты:", error);
+      });
   };
-  
+
   const handleEndTurn = () => {
-    endTurn(currentPlayerIndex);
+    makeMoveApi(user.accessToken, game.id, { type: "end-turn" })
+      .then(() => {
+        makeMove(game.id, user.id, { type: "end-turn" });
+      })
+      .catch((error) => {
+        console.error("Ошибка при завершении хода:", error);
+      });
   };
-  
-  // Filter out current player for attack targets
-  const attackTargets = gameState.players.filter((_, index) => index !== attackingPlayerIndex);
-  
+
+  const attackTargets = gameState.players.filter(
+    (player: any) => player.id !== currentPlayerId
+  );
+
   return (
     <div className="container mx-auto p-4 max-w-6xl">
       <GameHeader
         gameState={gameState}
         onEndTurn={handleEndTurn}
-        isCurrentPlayerTurn={true} // In a real game, we'd check if it's the client player's turn
+        isCurrentPlayerTurn={myPlayer?.id === currentPlayerId}
       />
-      
+
       {gameState.gameOver ? (
         <div className="glass-panel p-8 text-center animate-fade-in-up">
-          <h2 className="text-3xl font-bold text-yellow-500 mb-4">Game Over!</h2>
+          <h2 className="text-3xl font-bold text-yellow-500 mb-4">
+            Game Over!
+          </h2>
           <p className="text-white text-xl mb-6">
-            {gameState.winner?.name} wins with {gameState.winner?.krutagidonCups} Krutagidon Cups!
+            {gameState.winner?.username} wins with{" "}
+            {gameState.winner?.krutagidonCups} Krutagidon Cups!
           </p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
-            {gameState.players.map((player, index) => (
-              <div 
+            {gameState.players.map((player: any, index: number) => (
+              <div
                 key={`result-${index}`}
-                className={`glass-panel p-4 ${player.id === gameState.winner?.id ? 'border-yellow-500 shadow-neon' : ''}`}
+                className={`glass-panel p-4 ${
+                  player.id === gameState.winner?.id
+                    ? "border-yellow-500 shadow-neon"
+                    : ""
+                }`}
               >
                 <h3 className="text-white font-bold mb-2 flex items-center">
-                  {player.name} 
+                  {player.username}
                   {player.id === gameState.winner?.id && (
                     <span className="ml-2 text-yellow-500">👑</span>
                   )}
@@ -73,7 +137,11 @@ const GameBoard: React.FC = () => {
                   Dead Wizard Tokens: {player.deadWizardTokens}
                 </div>
                 <div className="text-white/70 text-sm">
-                  Cards in Collection: {player.deck.length + player.discard.length + player.hand.length + player.playArea.length}
+                  Cards in Collection:{" "}
+                  {player.deck.length +
+                    player.discard.length +
+                    player.hand.length +
+                    player.playArea.length}
                 </div>
               </div>
             ))}
@@ -84,42 +152,49 @@ const GameBoard: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <div className="lg:col-span-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {gameState.players.map((player, index) => (
+                {gameState.players.map((player: any, index: number) => (
                   <PlayerArea
                     key={`player-${index}`}
                     player={player}
-                    isCurrentPlayer={index === currentPlayerIndex}
+                    isCurrentPlayer={player.id === myPlayer?.id}
                     onPlayCard={handlePlayCard}
-                    onAttackPlayer={() => handleAttackModalOpen(index)}
                   />
                 ))}
               </div>
             </div>
-            
+
             <div className="space-y-4">
               <Marketplace
                 title="Junk Shop"
                 cards={gameState.marketplace}
-                onBuyCard={(index) => handleBuyCard(index, false)}
+                onBuyCard={(index: number) => handleBuyCard(index, false)}
                 playerPower={currentPlayer.power}
               />
-              
+            </div>
+
+            <div className="space-y-4 col-span-2 h-full">
+              <DiscardBoard
+                discard={gameState.players[currentPlayerIndex].discard}
+              />
+            </div>
+
+            <div className="space-y-4">
               <Marketplace
                 title="Legendary Junk Shop"
                 cards={gameState.legendaryMarketplace}
-                onBuyCard={(index) => handleBuyCard(index, true)}
+                onBuyCard={(index: number) => handleBuyCard(index, true)}
                 playerPower={currentPlayer.power}
               />
             </div>
           </div>
         </>
       )}
-      
+
       <AttackModal
         open={attackModalOpen}
         onClose={() => setAttackModalOpen(false)}
-        attacker={gameState.players[attackingPlayerIndex]}
         targets={attackTargets}
+        damage={attackingCardDamage}
         onAttack={handleAttack}
       />
     </div>
