@@ -8,7 +8,12 @@ import {
 } from "../../api/authApi";
 
 export interface AuthState {
-  user: { id: number; username: string; email: string } | null;
+  user: {
+    id: number;
+    username: string;
+    email: string;
+  } | null;
+  refreshToken: string;
   accessToken: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
@@ -18,6 +23,7 @@ export interface AuthState {
 const initialState: AuthState = {
   user: null,
   accessToken: null,
+  refreshToken: null,
   status: "idle",
   error: null,
   isVerifying: false,
@@ -164,6 +170,8 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.user = action.payload.user;
+        console.log("action.payload", action.payload);
+        state.refreshToken = action.payload.user.refreshToken;
         state.accessToken = action.payload.accessToken;
       })
       .addCase(loginUser.rejected, (state, action) => {
