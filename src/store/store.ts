@@ -7,6 +7,7 @@ import authReducer from "../features/auth/authSlice";
 import invitationsReducer from "../features/invitations/invitationsSlice";
 import gameReducer from "../features/game/gameSlice";
 import lobbyReducer from "../features/lobby/lobbySlice";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 const secretKey = import.meta.env.VITE_PERSIST_SECRET_KEY;
 
@@ -49,5 +50,5 @@ export const store = configureStore({
 
 export const persistor = persistStore(store);
 
-export type RootState = ReturnType<typeof store.getState>;
+export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;
