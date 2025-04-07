@@ -1,4 +1,5 @@
 import { GameStateData } from "@/features/game/gameSlice";
+import { Card, GameState } from "@/hooks/types";
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
@@ -11,10 +12,12 @@ export const initSocket = () => {
   return socket;
 };
 
-export const joinGame = (gameId: string) => {
+export const joinGame = (gameId: string, playerId: string) => {
   if (socket) {
-    socket.emit("joinGame", gameId);
-    console.log(`Emitting joinGame for gameId: ${gameId}`);
+    socket.emit("joinGame", { gameId, playerId });
+    console.log(
+      `Emitting joinGame for gameId: ${gameId} playerId: ${playerId}`
+    );
   } else {
     console.error("Socket is not initialized. Call initSocket first.");
   }
@@ -22,7 +25,8 @@ export const joinGame = (gameId: string) => {
 
 export const joinLobby = (lobbyId: string) => {
   if (socket) {
-    socket.emit("joinLobby", lobbyId);
+    console.log("lobbyId", lobbyId);
+    socket.emit("joinLobby", { lobbyId });
     console.log(`Emitting joinLobby for lobbyId: ${lobbyId}`);
   } else {
     console.error("Socket is not initialized. Call initSocket first.");
@@ -38,9 +42,9 @@ export const makeMove = (gameId: number, userId: string, move: any) => {
   }
 };
 
-export const onGameUpdate = (callback: (gameState: GameStateData) => void) => {
+export const onGameUpdate = (callback: (gameState: GameState) => void) => {
   if (socket) {
-    socket.on("gameUpdate", (updatedGameState: GameStateData) => {
+    socket.on("gameUpdate", (updatedGameState: GameState) => {
       console.log("Received gameUpdate:", updatedGameState);
       callback(updatedGameState);
     });
@@ -49,9 +53,22 @@ export const onGameUpdate = (callback: (gameState: GameStateData) => void) => {
   }
 };
 
-export const onMoveMade = (callback: (gameState: GameStateData) => void) => {
+export const onLegendaryCardRevealed = (
+  callback: (gameState: GameState) => void
+) => {
   if (socket) {
-    socket.on("moveMade", (data: GameStateData) => {
+    socket.on("legendaryCardRevealed", (card) => {
+      console.log("Legendary card revealed:", card);
+      callback(card);
+    });
+  } else {
+    console.error("Socket is not initialized. Call initSocket first.");
+  }
+};
+
+export const onMoveMade = (callback: (gameState: GameState) => void) => {
+  if (socket) {
+    socket.on("moveMade", (data: GameState) => {
       console.log("Received moveMade:", data);
       callback(data);
     });
@@ -77,6 +94,134 @@ export const onGameStarted = (callback: (data: { gameId: string }) => void) => {
       console.log("Received gameStarted:", data);
       callback(data);
     });
+  } else {
+    console.error("Socket is not initialized. Call initSocket first.");
+  }
+};
+
+// Добавляем новые методы для обработки событий выбора
+export const onSelectionRequired = (
+  callback: (data: { playerId: string; data: any }) => void
+) => {
+  if (socket) {
+    socket.on("selectionRequired", (data: { playerId: string; data: any }) => {
+      console.log("Received selectionRequired:", data);
+      callback(data);
+    });
+  } else {
+    console.error("Socket is not initialized. Call initSocket first.");
+  }
+};
+
+export const onAttackRequired = (
+  callback: (data: { playerId: string; data: any }) => void
+) => {
+  if (socket) {
+    socket.on("attackRequired", (data) => {
+      console.log("Received attackRequired:", data);
+      callback(data);
+    });
+  } else {
+    console.error("Socket is not initialized. Call initSocket first.");
+  }
+};
+
+export const onAttackTargetRequired = (
+  callback: (data: { playerId: string; data: any }) => void
+) => {
+  if (socket) {
+    socket.on("attackTargetRequired", (data) => {
+      console.log("Received attackTargetRequired:", data);
+      callback(data);
+    });
+  } else {
+    console.error("Socket is not initialized. Call initSocket first.");
+  }
+};
+
+export const onAttackTargetNotification = (
+  callback: (data: { playerId: string; cardId: number }) => void
+) => {
+  if (socket) {
+    socket.on("attackTargetNotification", (data) => {
+      console.log("Received attackTargetNotification:", data);
+      callback(data);
+    });
+  } else {
+    console.error("Socket is not initialized. Call initSocket first.");
+  }
+};
+
+export const onSelectionUpdated = (
+  callback: (data: { playerId: string; selection: any }) => void
+) => {
+  if (socket) {
+    socket.on(
+      "selectionUpdated",
+      (data: { playerId: string; selection: any }) => {
+        console.log("Received selectionUpdated:", data);
+        callback(data);
+      }
+    );
+  } else {
+    console.error("Socket is not initialized. Call initSocket first.");
+  }
+};
+
+// Новые методы для обработки событий атаки и защиты
+export const onDefenseRequired = (
+  callback: (data: {
+    gameId: string;
+    attackData: {
+      attackerId: number;
+      opponentId: number;
+      cardId: number;
+      damage: number;
+    };
+  }) => void
+) => {
+  if (socket) {
+    socket.on(
+      "defenseRequired",
+      (data: {
+        gameId: string;
+        attackData: {
+          attackerId: number;
+          opponentId: number;
+          cardId: number;
+          damage: number;
+        };
+      }) => {
+        console.log("Received defenseRequired:", data);
+        callback(data);
+      }
+    );
+  } else {
+    console.error("Socket is not initialized. Call initSocket first.");
+  }
+};
+
+export const onAttackNotification = (
+  callback: (data: {
+    attackerId: string;
+    opponentId: string;
+    cardId: number;
+    damage: number;
+  }) => void
+) => {
+  if (socket) {
+    socket.on(
+      "attackNotification",
+      (data: {
+        attackerId: string;
+        opponentId: string;
+        cardId: number;
+        damage: number;
+      }) => {
+        console.log("Received attackNotification:", data);
+        callback(data);
+      }
+    );
   } else {
     console.error("Socket is not initialized. Call initSocket first.");
   }
