@@ -7,14 +7,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Player } from "../types/game";
+import { Player } from "@/hooks/types";
 
 interface AttackModalProps {
   open: boolean;
   onClose: () => void;
   targets: Player[];
-  damage: number;
-  onAttack: (targetId: string, damage: number) => void;
+  damage?: number;
+  onAttack: (targetId: number, damage: number) => void;
 }
 
 const AttackModal: React.FC<AttackModalProps> = ({
@@ -24,14 +24,15 @@ const AttackModal: React.FC<AttackModalProps> = ({
   damage,
   onAttack,
 }) => {
-  const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
+  const [selectedTarget, setSelectedTarget] = useState<number | null>(null);
 
   const handleAttack = () => {
     if (selectedTarget !== null) {
       onAttack(selectedTarget, damage);
-      onClose();
     }
   };
+
+  if (!open) return null;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -59,14 +60,14 @@ const AttackModal: React.FC<AttackModalProps> = ({
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
                     <div className="w-8 h-8 rounded-full bg-krutagidon-purple border border-white flex items-center justify-center text-white font-bold mr-2">
-                      {target.name.substring(0, 1)}
+                      {target.username.substring(0, 1)}
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-white">
-                        {target.name}
+                        {target.username}
                       </div>
                       <div className="text-xs text-gray-400">
-                        Health: {target.health}/{target.maxHealth}
+                        Health: {target.health}/{target?.maxHealth}
                       </div>
                     </div>
                   </div>

@@ -1,42 +1,110 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import GameCard from "./GameCard";
-import { Card } from "../types/game";
 import { ArrowLeft } from "lucide-react";
 import { playerAreas } from "@/data/playerAreas";
 import { properties } from "@/data/properties";
 import { familiars } from "@/data/familiars";
 import { cn, getRandomElements } from "@/lib/utils";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import {
+  Card,
+  GameState,
+  PlayArea,
+  SelectedPlayArea,
+  WizardPropertyToken,
+} from "@/hooks/types";
+import { useAuth } from "@/hooks/useAuth";
+import { onSelectionRequired, onSelectionUpdated } from "@/api/socketManager";
+import { fetchGame, fetchSelectionOptions } from "@/api/gameApi";
+import { updateGameState } from "@/features/game/gameSlice";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface CardSelectionScreenProps {
+  socketGameState: GameState;
   onComplete: (selectedItems: {
-    property: Card;
+    property: SelectedPlayArea;
     familiar: Card;
-    playerArea: Card;
+    playerArea: PlayArea;
   }) => void;
 }
 
 const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
+  socketGameState,
   onComplete,
 }) => {
   const [step, setStep] = useState(1);
-  const [selectedCards, setSelectedCards] = useState<Card[]>([]);
+  const [selectedCards, setSelectedCards] = useState<
+    Array<Card | SelectedPlayArea | PlayArea>
+  >([]);
+  const [selectionRequired, setSelectionRequired] = useState(false);
+  const [properties, setProperties] = useState<WizardPropertyToken[]>([]);
+  const [familiars, setFamiliars] = useState<Card[]>([]);
+  const [playerAreas, setPlayerAreas] = useState<PlayArea[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { accessToken } = useAuth();
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const game = useSelector((state: RootState) => state.game.currentGame);
   const user = useSelector((state: RootState) => state.auth.user);
 
-  const myPlayer = game?.gameState.players.find((p) => p.userId === user?.id);
-  const allPlayersSelected = game?.gameState.players.every(
+  const myPlayer = socketGameState.players.find((p) => p.id === user?.id);
+  const allPlayersSelected = socketGameState.players.every(
     (p) => p.selectionCompleted
   );
 
-  const randomProperties = useMemo(() => getRandomElements(properties, 2), []);
-  const randomFamiliars = useMemo(() => getRandomElements(familiars, 2), []);
+  const { gameId } = useParams<{ gameId: string }>();
+
+  useEffect(() => {
+    onSelectionRequired(({ playerId }) => {
+      if (playerId === user?.id.toString()) {
+        setSelectionRequired(true);
+        fetchOptions();
+      }
+    });
+
+    onSelectionUpdated(({ playerId: updatedPlayerId }) => {
+      if (updatedPlayerId !== user?.id.toString()) {
+        fetchOptions();
+      }
+    });
+
+    if (gameId && user?.id && accessToken && !myPlayer?.selectionCompleted) {
+      setSelectionRequired(true);
+      fetchOptions();
+    }
+  }, [gameId, user?.id, accessToken]);
+
+  const fetchOptions = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const options = await fetchSelectionOptions(
+        accessToken,
+        +gameId,
+        user.id.toString()
+      );
+      setProperties(options.properties);
+      setFamiliars(options.familiars);
+      setPlayerAreas(options.playerAreas);
+    } catch (err) {
+      setError("Не удалось загрузить опции выбора. Попробуйте снова.");
+      console.error("Error fetching selection options:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // const randomProperties = useMemo(() => getRandomElements(properties, 2), []);
+  // const randomFamiliars = useMemo(() => getRandomElements(familiars, 2), []);
 
   const stepCards = {
-    1: randomProperties,
-    2: randomFamiliars,
+    1: properties,
+    2: familiars,
     3: playerAreas,
   };
 
@@ -54,8 +122,8 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
       setStep(step + 1);
     } else {
       onComplete({
-        property: newSelectedCards[0],
-        familiar: newSelectedCards[1],
+        property: newSelectedCards[0] as SelectedPlayArea,
+        familiar: newSelectedCards[1] as Card,
         playerArea: newSelectedCards[2],
       });
     }
@@ -68,17 +136,68 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
     }
   };
 
-  if (myPlayer?.selectionCompleted && !allPlayersSelected) {
+  if (!game || !socketGameState) {
+    fetchGame(accessToken, +gameId)
+      .then((fetchedGame) => {
+        // setSocketGameState(fetchedGame.gameState);
+        dispatch(updateGameState(fetchedGame)); // Обновляем Redux
+      })
+      .catch((error) => {
+        console.error("Ошибка при загрузке игры:", error);
+        setError("Не удалось загрузить игру. Попробуйте снова.");
+        navigate(
+          `/login?redirect=${encodeURIComponent(
+            location.pathname + location.search
+          )}`
+        );
+      });
+  }
+
+  if (!selectionRequired || myPlayer?.selectionCompleted) {
+    if (myPlayer?.selectionCompleted && !allPlayersSelected) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center">
+          <div className="glass-panel p-10 w-full max-w-4xl animate-fade-in-up">
+            <h2 className="text-2xl font-bold text-white mb-4 text-center">
+              Ожидание других игроков...
+            </h2>
+            <p className="text-white/60 text-center">
+              Вы уже выбрали свои карты. Пожалуйста, подождите, пока другие
+              игроки завершат выбор.
+            </p>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <div className="glass-panel p-10 w-full max-w-4xl animate-fade-in-up">
           <h2 className="text-2xl font-bold text-white mb-4 text-center">
-            Ожидание других игроков...
+            Загрузка опций...
           </h2>
-          <p className="text-white/60 text-center">
-            Вы уже выбрали свои карты. Пожалуйста, подождите, пока другие игроки
-            завершат выбор.
-          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <div className="glass-panel p-10 w-full max-w-4xl animate-fade-in-up">
+          <h2 className="text-2xl font-bold text-red-500 mb-4 text-center">
+            Ошибка
+          </h2>
+          <p className="text-white/60 text-center">{error}</p>
+          <Button
+            onClick={fetchOptions}
+            className="mt-4 bg-krutagidon-purple hover:bg-krutagidon-purple/80"
+          >
+            Попробовать снова
+          </Button>
         </div>
       </div>
     );

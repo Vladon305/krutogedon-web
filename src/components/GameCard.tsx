@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Card as GameCardType } from "../types/game";
 import { cn, getImageUrl } from "@/lib/utils";
+import { Card } from "@/hooks/types";
 
 interface GameCardProps {
-  card: GameCardType;
+  card: Card;
   onClick?: () => void;
   className?: string;
   isPlayable?: boolean;
@@ -21,47 +22,47 @@ const GameCard: React.FC<GameCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   // console.log("card", card);
-  const getCardTypeClass = () => {
-    if (card?.type) {
-      // console.log("card.type", card.type);
-      switch (card.type) {
-        case "legend":
-          return "card-type-legend";
-        case "spell":
-        case "madmagic":
-          return "card-type-spell";
-        case "creature":
-          return "card-type-creature";
-        case "treasure":
-        case "place":
-          return "card-type-artifact";
-        default:
-          return "card-type-starter";
-      }
-    } else console.log("not type");
-  };
+  // const getCardTypeClass = () => {
+  //   if (card?.type) {
+  //     // console.log("card.type", card.type);
+  //     switch (card.type) {
+  //       case "legend":
+  //         return "card-type-legend";
+  //       case "spell":
+  //       case "madmagic":
+  //         return "card-type-spell";
+  //       case "creature":
+  //         return "card-type-creature";
+  //       case "treasure":
+  //       case "place":
+  //         return "card-type-artifact";
+  //       default:
+  //         return "card-type-starter";
+  //     }
+  //   } else console.log("not type");
+  // };
 
-  const getCardTypeIcon = () => {
-    switch (card.type) {
-      case "legend":
-        return "👑";
-      case "spell":
-      case "madmagic":
-        return "✨";
-      case "creature":
-        return "👹";
-      case "treasure":
-        return "💎";
-      case "place":
-        return "🏰";
-      case "sign":
-        return "⚡";
-      case "familiar":
-        return "🐦";
-      default:
-        return "";
-    }
-  };
+  // const getCardTypeIcon = () => {
+  //   switch (card.type) {
+  //     case "legend":
+  //       return "👑";
+  //     case "spell":
+  //     case "madmagic":
+  //       return "✨";
+  //     case "creature":
+  //       return "👹";
+  //     case "treasure":
+  //       return "💎";
+  //     case "place":
+  //       return "🏰";
+  //     case "sign":
+  //       return "⚡";
+  //     case "familiar":
+  //       return "🐦";
+  //     default:
+  //       return "";
+  //   }
+  // };
 
   const handleClick = () => {
     if (isPlayable && onClick) {
@@ -69,11 +70,11 @@ const GameCard: React.FC<GameCardProps> = ({
     }
   };
 
-  const imageSrc = card.isImageCard ? getImageUrl(card.imagePath) : "";
+  const imageSrc = "http://localhost:5001/uploads/" + card.imageUrl; //getImageUrl(card.imageUrl);
 
   return (
     <>
-      {card.isImageCard ? (
+      {true ? (
         <div
           className={cn(
             // "game-card",
@@ -95,7 +96,7 @@ const GameCard: React.FC<GameCardProps> = ({
         <div
           className={cn(
             "game-card",
-            getCardTypeClass(),
+            // getCardTypeClass(),
             {
               "cursor-pointer transform transition-all": isPlayable,
               "opacity-50 cursor-not-allowed": !isPlayable,
@@ -121,23 +122,23 @@ const GameCard: React.FC<GameCardProps> = ({
                   </div>
                 </div>
 
-                {card.imagePath ? (
+                {card.imageUrl ? (
                   <div className="w-full h-20 rounded overflow-hidden mb-1">
                     <img
-                      src={card.imagePath}
+                      src={card.imageUrl}
                       alt={card.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
                 ) : (
                   <div className="w-full h-20 bg-gray-700 rounded flex items-center justify-center mb-1">
-                    <span className="text-3xl">{getCardTypeIcon()}</span>
+                    {/* <span className="text-3xl">{getCardTypeIcon()}</span> */}
                   </div>
                 )}
 
-                <div className="text-xs text-white mb-1 flex-grow overflow-y-auto">
+                {/* <div className="text-xs text-white mb-1 flex-grow overflow-y-auto">
                   {card.description}
-                </div>
+                </div> */}
 
                 <div className="flex justify-between items-center">
                   {card.isAttack && (
@@ -146,7 +147,7 @@ const GameCard: React.FC<GameCardProps> = ({
                     </div>
                   )}
 
-                  {card.isDefense && (
+                  {/* {card.isDefense && (
                     <div className="text-blue-500 font-bold text-xs">
                       🛡️ DEFENSE
                     </div>
@@ -156,7 +157,7 @@ const GameCard: React.FC<GameCardProps> = ({
                     <div className="text-purple-500 font-bold text-xs">
                       ♾️ PERMANENT
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import GameCard from "./GameCard";
-import { Player } from "@/types/game";
+import { Player } from "@/hooks/types";
 
 type Props = {
   discard: Player["discard"];

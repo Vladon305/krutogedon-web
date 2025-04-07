@@ -45,8 +45,12 @@ const Lobby: React.FC = () => {
   const hasJoinedLobbyRef = useRef(false);
 
   useEffect(() => {
-    if (!invitationId || (!user?.accessToken && !accessToken) || !user) {
-      navigate("/login");
+    if (!invitationId || !accessToken || !user) {
+      navigate(
+        `/login?redirect=${encodeURIComponent(
+          location.pathname + location.search
+        )}`
+      );
       return;
     }
 
@@ -71,7 +75,7 @@ const Lobby: React.FC = () => {
       hasJoinedRef.current = true;
       dispatch(
         joinLobbyByToken({
-          token: user.accessToken || accessToken,
+          token: accessToken,
           inviteToken,
         }) as any
       )
@@ -85,7 +89,7 @@ const Lobby: React.FC = () => {
           } else {
             dispatch(
               fetchLobby({
-                token: user.accessToken || accessToken,
+                token: accessToken,
                 invitationId: +invitationId,
               }) as any
             );
@@ -98,7 +102,7 @@ const Lobby: React.FC = () => {
     } else {
       dispatch(
         fetchLobby({
-          token: user.accessToken || accessToken,
+          token: accessToken,
           invitationId: +invitationId,
         }) as any
       )
@@ -122,6 +126,7 @@ const Lobby: React.FC = () => {
     });
 
     onGameStarted((data) => {
+      console.log("data on gameStart", data);
       navigate(`/game/${data.gameId}`);
     });
 
@@ -140,8 +145,7 @@ const Lobby: React.FC = () => {
   }, [lobby.players, user]);
 
   const handleSetReady = () => {
-    if (!invitationId || (!user?.accessToken && !accessToken) || !user?.id)
-      return;
+    if (!invitationId || !accessToken || !user?.id) return;
 
     if (lobby.players.length < 2) {
       toast.info(
@@ -152,7 +156,7 @@ const Lobby: React.FC = () => {
 
     dispatch(
       setReadyStatus({
-        token: user.accessToken || accessToken,
+        token: accessToken,
         invitationId: +invitationId,
         userId: user.id,
       }) as any
@@ -160,7 +164,11 @@ const Lobby: React.FC = () => {
   };
 
   if (!user) {
-    navigate("/login");
+    navigate(
+      `/login?redirect=${encodeURIComponent(
+        location.pathname + location.search
+      )}`
+    );
     return null;
   }
 

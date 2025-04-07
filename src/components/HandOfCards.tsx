@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Card } from "../types/game";
 import GameCard from "./GameCard";
 import { cn } from "@/lib/utils";
+import { Card } from "@/hooks/types";
 
 interface HandOfCardsProps {
   cards: Card[];
   onCardClick?: (index: number) => void;
+  isPlayable?: boolean;
   className?: string;
   maxSpread?: number; // Maximum amount of spread when hovering
   overlap?: number; // How much cards overlap by default (in percentage)
@@ -15,6 +16,7 @@ const HandOfCards: React.FC<HandOfCardsProps> = ({
   cards,
   onCardClick,
   className,
+  isPlayable = true,
   maxSpread = 40,
   overlap = 70,
 }) => {
@@ -79,13 +81,13 @@ const HandOfCards: React.FC<HandOfCardsProps> = ({
           style={getCardStyle(index)}
           onMouseEnter={() => setHoveredIndex(index)}
           onMouseLeave={() => setHoveredIndex(null)}
-          onClick={() => onCardClick && onCardClick(index)}
+          onClick={() => onCardClick && isPlayable && onCardClick(index)}
         >
           <GameCard
             card={card}
             isInHand={true}
             className="w-24 h-36 md:w-28 md:h-44 shadow-lg hover:shadow-xl"
-            isPlayable={!!onCardClick}
+            isPlayable={isPlayable}
           />
         </div>
       ))}

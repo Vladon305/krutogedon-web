@@ -1,11 +1,11 @@
 import React from "react";
-import { Card } from "../types/game";
 import GameCard from "./GameCard";
+import { Card } from "@/hooks/types";
 
 interface MarketplaceProps {
   cards: Card[];
   title: string;
-  onBuyCard: (index: number) => void;
+  onBuyCard: (cardId: number) => void;
   playerPower: number;
   className?: string;
 }
@@ -33,7 +33,7 @@ const Marketplace: React.FC<MarketplaceProps> = ({
             card={card}
             isPlayable={playerPower >= card?.cost}
             className="w-24 h-40 transition-all duration-300 hover:shadow-neon"
-            onClick={() => onBuyCard(index)}
+            onClick={() => onBuyCard(card.id)}
           />
         ))}
       </div>

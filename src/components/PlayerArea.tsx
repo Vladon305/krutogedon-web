@@ -1,18 +1,20 @@
 import React from "react";
-import { Player } from "../types/game";
 import GameCard from "./GameCard";
 import { cn } from "@/lib/utils";
 import HandOfCards from "./HandOfCards";
+import { Player } from "@/hooks/types";
 
 interface PlayerAreaProps {
   player: Player;
   isCurrentPlayer: boolean;
+  isPlayerMove: boolean;
   onPlayCard: (cardIndex: number) => void;
 }
 
 const PlayerArea: React.FC<PlayerAreaProps> = ({
   player,
   isCurrentPlayer,
+  isPlayerMove,
   onPlayCard,
 }) => {
   return (
@@ -27,17 +29,17 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center">
           <div className="w-10 h-10 rounded-full bg-krutagidon-purple border-2 border-white flex items-center justify-center text-white font-bold mr-2">
-            {player.name.substring(0, 1)}
+            {player.username.substring(0, 1)}
           </div>
           <div>
-            <h3 className="text-white font-bold">{player.name}</h3>
+            <h3 className="text-white font-bold">{player.username}</h3>
             <div className="flex space-x-2 text-xs">
               <div className="bg-red-900 rounded px-1">
-                Dead Wizard: {player.deadWizardTokens}
+                Dead Wizard: {player.deadWizardCount}
               </div>
-              <div className="bg-yellow-600 rounded px-1">
+              {/* <div className="bg-yellow-600 rounded px-1">
                 Cups: {player.krutagidonCups}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -46,17 +48,18 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
       <div className="mb-3">
         <div className="flex justify-between text-xs text-white mb-1">
           <span>
-            Health: {player.health}/{player.maxHealth}
+            Health: {player.health}/{player?.maxHealth}
           </span>
           <span className="flex items-center">
             <span className="power-icon mr-1">⚡</span> {player.power}
-            <span className="chipsin-icon ml-2 mr-1">🍟</span> {player.chipsins}
+            <span className="chipsin-icon ml-2 mr-1">🍟</span>{" "}
+            {/* {player?.chipsins} */}
           </span>
         </div>
         <div className="health-bar">
           <div
             className="health-bar-fill"
-            style={{ width: `${(player.health / player.maxHealth) * 100}%` }}
+            style={{ width: `${(player.health / player?.maxHealth) * 100}%` }}
           />
         </div>
       </div>
@@ -81,6 +84,7 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
               onCardClick={onPlayCard}
               overlap={70}
               maxSpread={50}
+              isPlayable={isPlayerMove}
             />
           </div>
         </div>
@@ -90,9 +94,9 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
         <div>
           <h4 className="text-white text-sm font-semibold mb-1">Play Area:</h4>
           <div className="flex flex-wrap gap-2">
-            {player.playArea.map((card, index) => (
+            {player.playArea.map((card) => (
               <GameCard
-                key={`play-${index}`}
+                key={`play-${card.id}`}
                 card={card}
                 isPlayable={false}
                 className="w-16 h-28 opacity-90"
