@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { createGame } from "../api/gameApi"; // Импортируем напрямую
+import { createGame, fetchGame } from "../api/gameApi"; // Импортируем напрямую
 import {
   initSocket,
   joinGame,
@@ -12,9 +12,17 @@ import {
 import GameSetup from "../components/GameSetup";
 import GameBoard from "../components/GameBoard";
 import CardSelectionScreen from "../components/CardSelectionScreen";
-import { Card } from "../types/game";
 import { RootState } from "@/store/store";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  Card,
+  Game,
+  GameState,
+  PlayArea,
+  Player,
+  SelectedPlayArea,
+  WizardPropertyToken,
+} from "@/hooks/types";
 
 const GamePage: React.FC = () => {
   const { gameId } = useParams<{ gameId: string }>();
@@ -22,12 +30,18 @@ const GamePage: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [gameStarted, setGameStarted] = useState(false);
   const [setupCompleted, setSetupCompleted] = useState(false);
-  const [socketGameState, setSocketGameState] = useState<any>(null);
-  const [game, setGame] = useState<any>(null); // Локальное состояние для игры
+  const [socketGameState, setSocketGameState] = useState<GameState>(null);
+  const [game, setGame] = useState<Game>(null); // Локальное состояние для игры
+  const [error, setError] = useState<string | null>(null);
   const { accessToken } = useAuth();
+
   useEffect(() => {
-    if (!gameId || !user || (!user.accessToken && !accessToken)) {
-      navigate("/login");
+    if (!gameId || !user || !accessToken) {
+      navigate(
+        `/login?redirect=${encodeURIComponent(
+          location.pathname + location.search
+        )}`
+      );
       return;
     }
 
@@ -35,7 +49,7 @@ const GamePage: React.FC = () => {
     initSocket();
 
     // Присоединяемся к игре
-    joinGame(gameId);
+    joinGame(gameId, user.id.toString());
 
     // Подписываемся на обновления состояния игры
     onGameUpdate((updatedGameState) => {
@@ -49,13 +63,18 @@ const GamePage: React.FC = () => {
 
     // Загружаем игру напрямую через API
     if (!game) {
-      createGame(user.accessToken || accessToken, +gameId)
+      fetchGame(accessToken, +gameId)
         .then((fetchedGame) => {
           setGame(fetchedGame);
+          setSocketGameState(fetchedGame.gameState);
         })
         .catch((error) => {
           console.error("Ошибка при создании игры:", error);
-          navigate("/login");
+          navigate(
+            `/login?redirect=${encodeURIComponent(
+              location.pathname + location.search
+            )}`
+          );
         });
     }
 
@@ -71,7 +90,17 @@ const GamePage: React.FC = () => {
       if (
         socketGameState.status === "active" &&
         socketGameState.players.every(
-          (player: any) => player.selectionCompleted
+          (player: Player) => player.selectionCompleted
+        )
+      ) {
+        setGameStarted(true);
+        setSetupCompleted(true);
+      }
+    } else if (game) {
+      if (
+        game.gameState.status === "active" &&
+        game.gameState.players.every(
+          (player: Player) => player.selectionCompleted
         )
       ) {
         setGameStarted(true);
@@ -81,18 +110,19 @@ const GamePage: React.FC = () => {
   }, [socketGameState]);
 
   const handleCardSelectionComplete = async (items: {
-    property: Card;
+    property: WizardPropertyToken;
     familiar: Card;
-    playerArea: Card;
+    playerArea: PlayArea;
   }) => {
+    setError(null);
     try {
       const response = await fetch(
-        `http://localhost:3000/game/${gameId}/select-cards`,
+        `http://localhost:5001/game/${gameId}/select-cards`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${user?.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
             playerId: user?.id,
@@ -105,30 +135,54 @@ const GamePage: React.FC = () => {
       }
     } catch (error) {
       console.error("Ошибка при выборе карт:", error);
+      setError("Не удалось отправить выбор. Попробуйте снова.");
     }
   };
 
   if (!gameId || !user) {
-    console.log("nav 1");
-    navigate("/login");
+    navigate(
+      `/login?redirect=${encodeURIComponent(
+        location.pathname + location.search
+      )}`
+    );
     return null;
   }
 
-  if (!socketGameState || !game) {
-    console.log(socketGameState, game);
+  if (!game) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
-        Загрузка...
+        {error ? (
+          <div className="glass-panel p-10 w-full max-w-4xl animate-fade-in-up">
+            <h2 className="text-2xl font-bold text-red-500 mb-4 text-center">
+              Ошибка
+            </h2>
+            <p className="text-white/60 text-center">{error}</p>
+          </div>
+        ) : (
+          "Загрузка..."
+        )}
       </div>
     );
   }
 
   return (
     <div className="max-h-screen overflow-hidden">
+      {error && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 glass-panel p-4 text-red-500">
+          {error}
+        </div>
+      )}
       {gameStarted ? (
-        <GameBoard game={game} socketGameState={socketGameState} />
+        <GameBoard
+          game={game}
+          socketGameState={socketGameState}
+          setSocketGameState={setSocketGameState}
+        />
       ) : setupCompleted ? (
-        <CardSelectionScreen onComplete={handleCardSelectionComplete} />
+        <CardSelectionScreen
+          onComplete={handleCardSelectionComplete}
+          socketGameState={socketGameState}
+        />
       ) : (
         <GameSetup onStartGame={() => setSetupCompleted(true)} />
       )}

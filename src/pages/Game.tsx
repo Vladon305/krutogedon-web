@@ -13,7 +13,11 @@ const Game: React.FC = () => {
 
   useEffect(() => {
     if (!user || !accessToken) {
-      navigate("/login");
+      navigate(
+        `/login?redirect=${encodeURIComponent(
+          location.pathname + location.search
+        )}`
+      );
       return;
     }
 

@@ -10,9 +10,9 @@ import RulesPage from "./pages/RulesPage";
 import { SocketProvider } from "./hooks/useSocket";
 import HandDemoPage from "./pages/HandDemoPage";
 import { GameProvider } from "./context/GameContext";
-import { Provider, useDispatch, useSelector } from "react-redux";
+import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { RootState, store, persistor } from "./store/store";
+import { store, persistor } from "./store/store";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import InvitePage from "./pages/InvitePage";
@@ -26,39 +26,45 @@ import {
   verifyTokenAsync,
 } from "./features/auth/authSlice";
 import Game from "./pages/Game";
+import { useTypedDispatch } from "./hooks/useTypedDispatch";
+import { useTypedSelector } from "./hooks/useTypedSelector";
+import { useAuth } from "./hooks/useAuth";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const dispatch = useDispatch();
-  const { isAuthenticated, accessToken, refreshToken, isVerifying } =
-    useSelector((state: RootState) => state.auth);
+  const dispatch = useTypedDispatch();
+  const { isAuthenticated } = useAuth();
+  const { accessToken, refreshToken, isVerifying } = useTypedSelector(
+    (state) => state.auth
+  );
 
-  // useEffect(() => {
-  //   const restoreAuth = async () => {
-  //     if (accessToken && !isAuthenticated) {
-  //       dispatch(setVerifying(true));
-  //       try {
-  //         await dispatch(verifyTokenAsync(accessToken) as any).unwrap();
-  //       } catch (error) {
-  //         if (refreshToken) {
-  //           try {
-  //             await dispatch(refreshTokenAsync() as any).unwrap();
-  //           } catch (refreshError) {
-  //             console.log("Failed to refresh token:", refreshError);
-  //             dispatch(clearAuth());
-  //           }
-  //         } else {
-  //           dispatch(clearAuth());
-  //         }
-  //       } finally {
-  //         dispatch(setVerifying(false));
-  //       }
-  //     }
-  //   };
+  useEffect(() => {
+    const restoreAuth = async () => {
+      console.log("accessToken", accessToken);
+      if (!accessToken || !isAuthenticated) {
+        dispatch(setVerifying(true));
+        try {
+          await dispatch(verifyTokenAsync(accessToken) as any).unwrap();
+        } catch (error) {
+          if (refreshToken) {
+            try {
+              await dispatch(refreshTokenAsync() as any).unwrap();
+            } catch (refreshError) {
+              console.log("Failed to refresh token:", refreshError);
+              dispatch(clearAuth());
+            }
+          } else {
+            dispatch(clearAuth());
+          }
+        } finally {
+          dispatch(setVerifying(false));
+        }
+      }
+    };
 
-  //   restoreAuth();
-  // }, [dispatch, accessToken, refreshToken, isAuthenticated]);
+    restoreAuth();
+  }, [dispatch, accessToken, refreshToken]);
 
   if (isVerifying) {
     return <div>Проверка авторизации...</div>;

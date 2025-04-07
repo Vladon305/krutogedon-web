@@ -2,8 +2,18 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { LogIn, UserPlus } from "lucide-react";
+import { logoutAsync } from "@/features/auth/authSlice";
+import { useTypedDispatch } from "@/hooks/useTypedDispatch";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
+  const dispatch = useTypedDispatch();
+  const { accessToken } = useAuth();
+
+  const logout = () => {
+    dispatch(logoutAsync(accessToken));
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
       <div className="absolute inset-0 z-0 animate-pulse-glow opacity-30">
@@ -89,6 +99,14 @@ const Index = () => {
               Hand Demo
             </Button>
           </Link>
+
+          <Button
+            variant="ghost"
+            className="text-white hover:bg-white/10"
+            onClick={logout}
+          >
+            log out
+          </Button>
         </div>
       </div>
 
