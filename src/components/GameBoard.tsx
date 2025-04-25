@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   disconnectSocket,
@@ -13,7 +13,7 @@ import {
   onGameUpdate,
   onSelectionRequired,
 } from "@/api/socketManager";
-import PlayerArea from "./PlayerArea";
+import PlayerArea from "./PlayerArea/PlayerArea";
 import Marketplace from "./Marketplace";
 import GameHeader from "./GameHeader";
 import AttackModal from "./AttackModal";
@@ -33,6 +33,7 @@ import { useAuth } from "@/hooks/useAuth";
 import DefenseModal from "./DefenseModal";
 import DestroyCardModal from "./DestroyCardModal";
 import TopDeckSelectionModal from "./TopDeckSelectionModal";
+import { calculatePlayerPositions, getPlayerPositions } from "@/lib/utils";
 
 interface GameBoardProps {
   game: Game;
@@ -61,6 +62,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const [attackingCardId, setAttackingCardId] = useState<number | null>(null);
   const [attackData, setAttackData] = useState<any>(null);
   const [notification, setNotification] = useState<string | null>(null);
+
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const gameBoardContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!user || !game) return;
@@ -145,6 +149,20 @@ const GameBoard: React.FC<GameBoardProps> = ({
       disconnectSocket();
     };
   }, [game, user, setSocketGameState]);
+
+  // 1. Обновляем размеры при монтировании и ресайзе
+  useEffect(() => {
+    const updateSize = () => {
+      if (gameBoardContainerRef.current) {
+        const rect = gameBoardContainerRef.current.getBoundingClientRect();
+        setContainerSize({ width: rect.width, height: rect.height });
+      }
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   if (!game || !user) {
     return (
@@ -293,8 +311,19 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   const defenseCards = myPlayer?.hand.filter((card) => card.isDefense) || [];
 
+  const playersPosition = useMemo(() => {
+    console.log("calc");
+    console.log("gameBoardContainerRef", containerSize.width);
+    return getPlayerPositions(
+      gameState.players,
+      myPlayer.id,
+      containerSize.width
+    );
+  }, [containerSize]);
+  console.log("playersPosition", playersPosition);
+
   return (
-    <div className="container mx-auto p-4 max-w-6xl">
+    <div className="container h-full mx-auto p-4 max-w-6xl">
       {notification && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 glass-panel p-4 text-white">
           {notification}
@@ -317,7 +346,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
-            {gameState.players.map((player: any, index: number) => (
+            {gameState.players.map((player, index: number) => (
               <div
                 key={`result-${index}`}
                 className={`glass-panel p-4 ${
@@ -336,7 +365,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   Krutagidon Cups: {player.krutagidonCups}
                 </div>
                 <div className="text-white/70 text-sm">
-                  Dead Wizard Tokens: {player.deadWizardTokens}
+                  Dead Wizard Tokens: {player.deadWizardCount}
                 </div>
                 <div className="text-white/70 text-sm">
                   Cards in Collection:{" "}
@@ -351,8 +380,52 @@ const GameBoard: React.FC<GameBoardProps> = ({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <div className="lg:col-span-2">
+          <div
+            ref={gameBoardContainerRef}
+            className="relative max-h-full h-[88%] grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6"
+          >
+            {playersPosition.map((position, index) => (
+              <div
+                key={position.id}
+                style={{
+                  position: "absolute",
+                  left: position.left,
+                  bottom: position.bottom,
+                  transform: position.transform,
+                  zIndex: position.zIndex ?? 1,
+
+                  width: 340,
+                  height: 520,
+                }}
+              >
+                <PlayerArea
+                  key={`player-${index}`}
+                  player={position.player}
+                  isCurrentPlayer={position.player.id === myPlayer?.id}
+                  isPlayerMove={currentPlayerId === myPlayer?.id}
+                  onPlayCard={handlePlayCard}
+                />
+              </div>
+            ))}
+
+            {/* <div className="space-y-4">
+              <Marketplace
+                title="Junk Shop"
+                cards={gameState.currentMarketplace}
+                onBuyCard={(cardId: number) => handleBuyCard(cardId, false)}
+                playerPower={currentPlayer.power}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <Marketplace
+                title="Legendary Junk Shop"
+                cards={gameState.currentLegendaryMarketplace}
+                onBuyCard={(cardId: number) => handleBuyCard(cardId, true)}
+                playerPower={currentPlayer.power}
+              />
+            </div> */}
+            {/* <div className="lg:col-span-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {gameState.players.map((player: Player, index: number) => (
                   <PlayerArea
@@ -364,29 +437,29 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   />
                 ))}
               </div>
-            </div>
+            </div> */}
 
-            <div className="space-y-4">
+            {/* <div className="space-y-4">
               <Marketplace
                 title="Junk Shop"
                 cards={gameState.currentMarketplace}
                 onBuyCard={(cardId: number) => handleBuyCard(cardId, false)}
                 playerPower={currentPlayer.power}
               />
-            </div>
+            </div> */}
 
-            <div className="space-y-4 col-span-2 h-full">
+            {/* <div className="space-y-4 col-span-2 h-full">
               <DiscardBoard discard={currentPlayer?.discard} />
-            </div>
+            </div> */}
 
-            <div className="space-y-4">
+            {/* <div className="space-y-4">
               <Marketplace
                 title="Legendary Junk Shop"
                 cards={gameState.currentLegendaryMarketplace}
                 onBuyCard={(cardId: number) => handleBuyCard(cardId, true)}
                 playerPower={currentPlayer.power}
               />
-            </div>
+            </div> */}
           </div>
         </>
       )}

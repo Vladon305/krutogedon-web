@@ -10,7 +10,8 @@ import {
   disconnectSocket,
 } from "@/api/socketManager";
 import GameSetup from "../components/GameSetup";
-import GameBoard from "../components/GameBoard";
+// import GameBoard from "../components/GameBoard";
+import GameBoard from "../components/GameBoard/GameBoard";
 import CardSelectionScreen from "../components/CardSelectionScreen";
 import { RootState } from "@/store/store";
 import { useAuth } from "@/hooks/useAuth";
@@ -166,17 +167,23 @@ const GamePage: React.FC = () => {
   }
 
   return (
-    <div className="max-h-screen overflow-hidden">
+    <div className="h-screen overflow-hidden">
       {error && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 glass-panel p-4 text-red-500">
           {error}
         </div>
       )}
       {gameStarted ? (
+        // <GameBoard
+        //   game={game}
+        //   socketGameState={socketGameState}
+        //   setSocketGameState={setSocketGameState}
+        // />
         <GameBoard
           game={game}
-          socketGameState={socketGameState}
-          setSocketGameState={setSocketGameState}
+          gameState={socketGameState}
+          players={socketGameState.players}
+          currentPlayerId={1}
         />
       ) : setupCompleted ? (
         <CardSelectionScreen

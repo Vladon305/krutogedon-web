@@ -37,9 +37,6 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
               <div className="bg-red-900 rounded px-1">
                 Dead Wizard: {player.deadWizardCount}
               </div>
-              {/* <div className="bg-yellow-600 rounded px-1">
-                Cups: {player.krutagidonCups}
-              </div> */}
             </div>
           </div>
         </div>

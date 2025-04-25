@@ -1,0 +1,25 @@
+// PlayerArea.module.scss
+.playerArea {
+  @apply absolute bottom-0 bg-gray-800 bg-opacity-80 rounded-lg shadow-lg flex flex-col items-center justify-between p-4 transition-all duration-300 border-2 border-gray-500;
+  z-index: 5;
+}
+
+.currentPlayer {
+  @apply border-4 border-yellow-400;
+}
+
+.playerName {
+  @apply text-white text-lg font-bold;
+}
+
+.cardsZone {
+  @apply flex-1 w-full flex flex-wrap justify-center items-center gap-2 overflow-hidden;
+}
+
+.cardPlaceholder {
+  @apply w-16 h-24 bg-gray-600 rounded-md flex items-center justify-center text-white flex-shrink-0;
+}
+
+.status {
+  @apply text-white text-sm;
+}

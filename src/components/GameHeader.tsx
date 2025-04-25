@@ -6,12 +6,14 @@ interface GameHeaderProps {
   gameState: GameState;
   onEndTurn: () => void;
   isCurrentPlayerTurn: boolean;
+  actions?: React.ReactNode[];
 }
 
 const GameHeader: React.FC<GameHeaderProps> = ({
   gameState,
   onEndTurn,
   isCurrentPlayerTurn,
+  actions,
 }) => {
   const currentPlayerId = gameState.currentPlayer;
   const currentPlayer = gameState.players.find((p) => p.id === currentPlayerId);
@@ -24,6 +26,10 @@ const GameHeader: React.FC<GameHeaderProps> = ({
             Krutagidon: Extremely Spicy Chipsychosis
           </h1>
           <div className="text-white/70 text-sm">Round: {gameState?.turn}</div>
+        </div>
+
+        <div className="flex items-center">
+          {actions.map((action) => action)}
         </div>
 
         <div className="flex items-center">

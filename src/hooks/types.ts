@@ -72,6 +72,15 @@ export interface PlayArea {
   imageUrl: string;
 }
 
+export type Position = {
+  id: number;
+  left: string;
+  bottom: string;
+  transform?: string;
+  zIndex?: number;
+  player: Player;
+};
+
 export interface Player {
   id: number; // Уникальный ID игрока (1, 2, ..., 5)
   userId: string; // ID пользователя из базы данных
@@ -106,7 +115,7 @@ export interface GameState {
   marketplace: Card[]; // Оставшиеся карты рынка
   currentLegendaryMarketplace: Card[]; // Текущие легендарные карты на рынке
   legendaryMarketplace: Card[]; // Оставшиеся легендарные карты рынка
-  strayMagicDiscard: Card[]; // Стопка уничтоженных карт беспредела
+  chaosCardDiscard: Card[]; // Стопка уничтоженных карт беспредела
   deadWizardTokens: number; // Количество жетонов дохлых колдунов
   isTopLegendaryCardHidden: boolean; // Закрыта ли верхняя карта легенд
   gameOver: boolean; // Завершена ли игра
@@ -123,6 +132,24 @@ export interface GameState {
     opponentId: number;
     cardId: number;
     damage: number;
+  };
+  pendingPlayCard?: {
+    playerId: number;
+    cardId: number;
+  };
+  lastBoughtOrGotCardCost?: number; // Стоимость последней купленной или полученной карты
+  pendingTopDeckSelection?: {
+    playerId: number;
+    revealedCards: { enemyId: number; card: Card }[];
+  };
+  pendingDestroyCardSelection?: {
+    playerId: number;
+    source: "hand" | "discard";
+  };
+  pendingEnemySelection?: {
+    playerId: number;
+    action: string;
+    targets: number[];
   };
 }
 

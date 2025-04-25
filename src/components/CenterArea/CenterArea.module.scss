@@ -1,0 +1,21 @@
+// CenterArea.module.scss
+.centerArea {
+  @apply w-full h-full max-h-80 bg-gray-700 bg-opacity-80 rounded-lg shadow-lg flex items-center justify-center p-4;
+  z-index: 15; // z-index выше, чем у игроков
+}
+//w-[600px] h-[400px]
+.market {
+  @apply flex;
+}
+
+.marketplace {
+  @apply flex flex-wrap justify-center gap-4;
+}
+
+.marketCard {
+  @apply w-32 h-44 bg-gray-600 rounded-md flex items-center justify-center text-white;
+}
+
+.deck {
+  @apply mt-4 w-32 h-44 bg-gray-800 rounded-md flex items-center justify-center text-white;
+}
