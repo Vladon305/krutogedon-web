@@ -6,7 +6,7 @@ import {
   joinLobbyByToken,
   setReadyStatus,
   updateLobby,
-} from "../features/lobby/lobbySlice";
+} from "@/features/lobby/lobbySlice";
 import {
   initSocket,
   joinLobby,

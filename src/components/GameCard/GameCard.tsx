@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card as GameCardType } from "../types/game";
+import { Card as GameCardType } from "@/types/game";
 import { cn, getImageUrl } from "@/lib/utils";
 import { Card } from "@/hooks/types";
 

@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { acceptInvitationByTokenAsync } from "../features/invitations/invitationsSlice";
-import { RootState } from "../store/store";
+import { acceptInvitationByTokenAsync } from "@/features/invitations/invitationsSlice";
+import { RootState } from "../../store/store";
 
 const AcceptInvitation: React.FC = () => {
   const dispatch = useDispatch();

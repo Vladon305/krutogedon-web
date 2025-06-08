@@ -13,11 +13,11 @@ import {
   onGameUpdate,
   onSelectionRequired,
 } from "@/api/socketManager";
-import PlayerArea from "./PlayerArea/PlayerArea";
-import Marketplace from "./Marketplace";
-import GameHeader from "./GameHeader";
-import AttackModal from "./AttackModal";
-import DiscardBoard from "./DiscardBoard";
+import PlayerArea from "../PlayerArea/PlayerArea";
+import Marketplace from "../Marketplace/Marketplace";
+import GameHeader from "../GameHeader/GameHeader";
+import AttackModal from "../AttackModal/AttackModal";
+import DiscardBoard from "../DiscardBoard/DiscardBoard";
 import {
   cancelAttackTarget,
   destroyCard,
@@ -25,14 +25,14 @@ import {
   resolveDefense,
   selectAttackTarget,
   topDeckSelection,
-} from "../api/gameApi";
+} from "../../api/gameApi";
 import { RootState } from "@/store/store";
 import { Card, Game, Player } from "@/hooks/types";
 import { GameState } from "@/hooks/types";
 import { useAuth } from "@/hooks/useAuth";
-import DefenseModal from "./DefenseModal";
-import DestroyCardModal from "./DestroyCardModal";
-import TopDeckSelectionModal from "./TopDeckSelectionModal";
+import DefenseModal from "../DefenseModal/DefenseModal";
+import DestroyCardModal from "../DestroyCardModal/DestroyCardModal";
+import TopDeckSelectionModal from "../TopDeckSelectionModal/TopDeckSelectionModal";
 import { calculatePlayerPositions, getPlayerPositions } from "@/lib/utils";
 
 interface GameBoardProps {
@@ -400,6 +400,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
               >
                 <PlayerArea
                   key={`player-${index}`}
+                  position="left"
                   player={position.player}
                   isCurrentPlayer={position.player.id === myPlayer?.id}
                   isPlayerMove={currentPlayerId === myPlayer?.id}

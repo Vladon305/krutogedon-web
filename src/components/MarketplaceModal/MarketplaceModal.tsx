@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import Marketplace from "../Marketplace";
+import Marketplace from "../Marketplace/Marketplace";
 
 interface MarketplaceModalProps {
   open: boolean;

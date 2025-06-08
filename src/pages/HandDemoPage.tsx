@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import HandOfCards from "../components/HandOfCards";
+import HandOfCards from "../components/HandOfCards/HandOfCards";
 import { Card } from "../types/game";
 import { generateSampleCards } from "../data/cards";
 import { Button } from "@/components/ui/button";

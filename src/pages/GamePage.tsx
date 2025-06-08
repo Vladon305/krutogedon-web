@@ -9,10 +9,10 @@ import {
   onMoveMade,
   disconnectSocket,
 } from "@/api/socketManager";
-import GameSetup from "../components/GameSetup";
+import GameSetup from "../components/GameSetup/GameSetup";
 // import GameBoard from "../components/GameBoard";
 import GameBoard from "../components/GameBoard/GameBoard";
-import CardSelectionScreen from "../components/CardSelectionScreen";
+import CardSelectionScreen from "../components/CardSelectionScreen/CardSelectionScreen";
 import { RootState } from "@/store/store";
 import { useAuth } from "@/hooks/useAuth";
 import {

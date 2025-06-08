@@ -5,7 +5,7 @@ import styles from "./GameBoard.module.scss";
 import { Game, GameState, Player } from "@/hooks/types";
 import MarketplaceModal from "../MarketplaceModal/MarketplaceModal";
 import { Button } from "@/components/ui/button";
-import GameHeader from "../GameHeader";
+import GameHeader from "../GameHeader/GameHeader";
 import { useTypedSelector } from "@/hooks/useTypedSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { makeMove } from "@/api/socketManager";
@@ -101,7 +101,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
             <PlayerArea
               player={currentPlayer}
               position="bottom"
-              index={0}
               isCurrentPlayer={true}
               isPlayerMove={currentPlayerId === gameState.currentPlayer}
               onPlayCard={handlePlayCard}
@@ -115,7 +114,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
             <PlayerArea
               player={player}
               position={position}
-              index={index}
               isCurrentPlayer={false}
               isPlayerMove={currentPlayerId === gameState.currentPlayer}
               onPlayCard={handlePlayCard}

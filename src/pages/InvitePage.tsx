@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Home } from "lucide-react";
-import InvitationForm from "@/components/InvitationForm";
+import InvitationForm from "@/components/InvitationForm/InvitationForm";
 
 const InvitePage = () => {
   return (

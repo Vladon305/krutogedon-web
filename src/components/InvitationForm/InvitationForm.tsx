@@ -3,10 +3,10 @@
 // import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Mail, Send, Copy, Check } from "lucide-react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 import { useDispatch, useSelector } from "react-redux";
-import { createInvitationAsync } from "../features/invitations/invitationsSlice";
-import { RootState } from "../store/store";
+import { createInvitationAsync } from "../../features/invitations/invitationsSlice";
+import { RootState } from "../../store/store";
 import { useState } from "react";
 
 // import {

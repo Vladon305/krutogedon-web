@@ -16,8 +16,8 @@ import { store, persistor } from "./store/store";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import InvitePage from "./pages/InvitePage";
-import Lobby from "./components/Lobby";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Lobby from "./components/Lobby/Lobby";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { useEffect } from "react";
 import {
   clearAuth,

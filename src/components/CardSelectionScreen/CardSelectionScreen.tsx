@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import GameCard from "./GameCard";
+import GameCard from "@/components/GameCard/GameCard";
 import { ArrowLeft } from "lucide-react";
 import { playerAreas } from "@/data/playerAreas";
 import { properties } from "@/data/properties";
 import { familiars } from "@/data/familiars";
 import { cn, getRandomElements } from "@/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../store/store";
+import { RootState } from "../../store/store";
 import {
   Card,
   GameState,

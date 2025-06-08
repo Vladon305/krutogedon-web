@@ -2,7 +2,7 @@
 import React from "react";
 import styles from "./CenterArea.module.scss";
 import { Card } from "@/hooks/types";
-import GameCard from "../GameCard";
+import GameCard from "@/components/GameCard/GameCard";
 
 type Props = {
   cards: Card[];

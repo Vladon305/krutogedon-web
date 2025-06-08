@@ -1,5 +1,5 @@
 import React from "react";
-import GameCard from "../GameCard";
+import GameCard from "@/components/GameCard/GameCard";
 import { Card } from "@/hooks/types";
 
 type Props = { isOpen: boolean; discard: Card[]; onClickOpen: () => void };

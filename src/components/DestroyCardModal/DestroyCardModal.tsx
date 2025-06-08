@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/hooks/types";
-import GameCard from "./GameCard";
+import GameCard from "@/components/GameCard/GameCard";
 
 interface DestroyCardModalProps {
   open: boolean;

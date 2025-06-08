@@ -1,7 +1,7 @@
 import { Player } from "@/hooks/types";
 import DiscardDeck from "../DiscardDeck/DiscardDeck";
 import { useState } from "react";
-import HandOfCards from "../HandOfCards";
+import HandOfCards from "../HandOfCards/HandOfCards";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -9,7 +9,6 @@ type Props = {
   isCurrentPlayer: boolean;
   isPlayerMove: boolean;
   position: "bottom" | "left" | "right" | "top-left" | "top-right";
-  index: number;
   onPlayCard: (cardIndex: number) => void;
 };
 
@@ -18,7 +17,6 @@ const PlayerArea = ({
   isCurrentPlayer,
   isPlayerMove,
   position,
-  index,
   onPlayCard,
 }: Props) => {
   const [isOpenDiscard, setIsOpenDiscard] = useState(false);

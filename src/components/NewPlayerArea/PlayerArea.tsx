@@ -1,7 +1,7 @@
 import React from "react";
-import GameCard from "./GameCard";
+import GameCard from "@/components/GameCard/GameCard";
 import { cn } from "@/lib/utils";
-import HandOfCards from "./HandOfCards";
+import HandOfCards from "../HandOfCards/HandOfCards";
 import { Player } from "@/hooks/types";
 
 interface PlayerAreaProps {
