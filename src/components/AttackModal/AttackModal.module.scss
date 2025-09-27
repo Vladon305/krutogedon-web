@@ -1,0 +1,63 @@
+.modalContent {
+  @apply bg-krutagidon-dark border-krutagidon-purple;
+}
+
+.modalTitle {
+  @apply text-white;
+}
+
+.body {
+  @apply grid gap-4 py-4;
+}
+
+.description {
+  @apply text-white text-sm;
+}
+
+.targetList {
+  @apply space-y-2;
+}
+
+.targetCard {
+  @apply p-2 rounded-md cursor-pointer transition-all;
+}
+
+.targetCard_default {
+  @apply bg-gray-800 border border-gray-700 hover:border-gray-500;
+}
+
+.targetCard_selected {
+  @apply bg-krutagidon-purple border border-yellow-500;
+}
+
+.targetCardInner {
+  @apply flex justify-between items-center;
+}
+
+.avatarWithInfo {
+  @apply flex items-center;
+}
+
+.avatar {
+  @apply w-8 h-8 rounded-full bg-krutagidon-purple border border-white flex items-center justify-center text-white font-bold mr-2;
+}
+
+.username {
+  @apply text-sm font-semibold text-white;
+}
+
+.health {
+  @apply text-xs text-gray-400;
+}
+
+.checkmark {
+  @apply text-yellow-500;
+}
+
+.cancelButton {
+  @apply border-krutagidon-red text-white;
+}
+
+.attackButton {
+  @apply bg-gradient-to-r from-krutagidon-purple to-krutagidon-red text-white;
+}

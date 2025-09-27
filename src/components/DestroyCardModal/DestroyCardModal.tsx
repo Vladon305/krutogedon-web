@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/hooks/types";
 import GameCard from "@/components/GameCard/GameCard";
+import styles from "./DestroyCardModal.module.scss";
 
 interface DestroyCardModalProps {
   open: boolean;
@@ -44,36 +45,41 @@ const DestroyCardModal: React.FC<DestroyCardModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-krutagidon-dark border-krutagidon-purple">
+      <DialogContent className={styles.destroyCardModal__content}>
         <DialogHeader>
-          <DialogTitle className="text-white">
+          <DialogTitle className={styles.destroyCardModal__title}>
             Destroy a Card from Discard
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          <div className="text-white text-sm">
+        <div className={styles.destroyCardModal__body}>
+          <div className={styles.destroyCardModal__description}>
             Select a card to destroy from your discard pile.
           </div>
 
           {cards.length === 0 ? (
-            <div className="text-white text-sm">No cards in discard pile.</div>
+            <div className={styles.destroyCardModal__emptyMessage}>
+              No cards in discard pile.
+            </div>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className={styles.destroyCardModal__cardList}>
               {cards.map((card) => (
                 <div
                   key={card.id}
-                  className={`cursor-pointer transition-all ${
-                    selectedCardId === card.id
-                      ? "border-yellow-500 border-2"
-                      : "border-transparent border-2"
-                  }`}
+                  className={
+                    styles.destroyCardModal__cardWrapper +
+                    ` ${
+                      selectedCardId === card.id
+                        ? styles.destroyCardModal__cardWrapperSelected
+                        : styles.destroyCardModal__cardWrapperDefault
+                    }`
+                  }
                   onClick={() => setSelectedCardId(card.id)}
                 >
                   <GameCard
                     card={card}
                     isInHand={false}
-                    className="w-16 h-28"
+                    className={styles.destroyCardModal__card}
                   />
                 </div>
               ))}
@@ -85,14 +91,14 @@ const DestroyCardModal: React.FC<DestroyCardModalProps> = ({
           <Button
             onClick={onClose}
             variant="outline"
-            className="border-krutagidon-red text-white"
+            className={styles.destroyCardModal__cancelButton}
           >
             Cancel
           </Button>
           <Button
             onClick={handleDestroy}
             disabled={selectedCardId === null}
-            className="bg-gradient-to-r from-krutagidon-purple to-krutagidon-red text-white"
+            className={styles.destroyCardModal__destroyButton}
           >
             Destroy
           </Button>

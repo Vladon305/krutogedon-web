@@ -27,6 +27,7 @@ import {
 import { useDispatch } from "react-redux";
 import { loginUser } from "@/features/auth/authSlice";
 import { useAuth } from "@/hooks/useAuth";
+import styles from "./LoginForm.module.scss";
 
 // Login form schema
 const loginSchema = z.object({
@@ -69,18 +70,21 @@ export const LoginForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-lg border-0 glass-panel overflow-hidden">
-      <CardHeader className="space-y-1 text-center bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
-        <CardTitle className="text-2xl font-bold">
-          <LogIn className="w-6 h-6 inline mr-2" /> Log In
+    <Card className={styles.loginForm}>
+      <CardHeader className={styles.loginForm__header}>
+        <CardTitle className={styles.loginForm__title}>
+          <LogIn className={styles.loginForm__titleIcon} /> Log In
         </CardTitle>
-        <CardDescription className="text-white/80">
+        <CardDescription className={styles.loginForm__description}>
           Enter your credentials to access your account
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className={styles.loginForm__content}>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className={styles.loginForm__form}
+          >
             <FormField
               control={form.control}
               name="email"
@@ -88,11 +92,11 @@ export const LoginForm = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className={styles.loginForm__inputWrapper}>
+                      <Mail className={styles.loginForm__inputIcon} />
                       <Input
                         placeholder="you@example.com"
-                        className="pl-10"
+                        className={styles.loginForm__input}
                         {...field}
                       />
                     </div>
@@ -109,23 +113,23 @@ export const LoginForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className={styles.loginForm__inputWrapper}>
+                      <Key className={styles.loginForm__inputIcon} />
                       <Input
                         type={showPassword ? "text" : "password"}
-                        className="pl-10 pr-10"
+                        className={styles.loginForm__passwordInput}
                         {...field}
                       />
                       <Button
                         type="button"
                         variant="ghost"
-                        className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground"
+                        className={styles.loginForm__togglePassword}
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className={styles.loginForm__toggleIcon} />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className={styles.loginForm__toggleIcon} />
                         )}
                       </Button>
                     </div>
@@ -135,16 +139,20 @@ export const LoginForm = () => {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className={styles.loginForm__submitButton}
+              disabled={isLoading}
+            >
               {isLoading ? "Вход..." : "Войти"}
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex flex-col space-y-2 border-t pt-4">
-        <div className="text-sm text-center text-muted-foreground">
+      <CardFooter className={styles.loginForm__footer}>
+        <div className={styles.loginForm__footerText}>
           Don't have an account?{" "}
-          <Link to="/register" className="text-primary hover:underline">
+          <Link to="/register" className={styles.loginForm__registerLink}>
             Sign up
           </Link>
         </div>

@@ -20,6 +20,7 @@ import { onSelectionRequired, onSelectionUpdated } from "@/api/socketManager";
 import { fetchGame, fetchSelectionOptions } from "@/api/gameApi";
 import { updateGameState } from "@/features/game/gameSlice";
 import { useNavigate, useParams } from "react-router-dom";
+import styles from "./CardSelectionScreen.module.scss";
 
 interface CardSelectionScreenProps {
   socketGameState: GameState;
@@ -99,9 +100,6 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
     }
   };
 
-  // const randomProperties = useMemo(() => getRandomElements(properties, 2), []);
-  // const randomFamiliars = useMemo(() => getRandomElements(familiars, 2), []);
-
   const stepCards = {
     1: properties,
     2: familiars,
@@ -139,8 +137,7 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
   if (!game || !socketGameState) {
     fetchGame(accessToken, +gameId)
       .then((fetchedGame) => {
-        // setSocketGameState(fetchedGame.gameState);
-        dispatch(updateGameState(fetchedGame)); // Обновляем Redux
+        dispatch(updateGameState(fetchedGame));
       })
       .catch((error) => {
         console.error("Ошибка при загрузке игры:", error);
@@ -156,12 +153,12 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
   if (!selectionRequired || myPlayer?.selectionCompleted) {
     if (myPlayer?.selectionCompleted && !allPlayersSelected) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center">
-          <div className="glass-panel p-10 w-full max-w-4xl animate-fade-in-up">
-            <h2 className="text-2xl font-bold text-white mb-4 text-center">
+        <div className={styles.cardSelectionScreen}>
+          <div className={styles.cardSelectionScreen__panel}>
+            <h2 className={styles.cardSelectionScreen__title}>
               Ожидание других игроков...
             </h2>
-            <p className="text-white/60 text-center">
+            <p className={styles.cardSelectionScreen__description}>
               Вы уже выбрали свои карты. Пожалуйста, подождите, пока другие
               игроки завершат выбор.
             </p>
@@ -174,9 +171,9 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <div className="glass-panel p-10 w-full max-w-4xl animate-fade-in-up">
-          <h2 className="text-2xl font-bold text-white mb-4 text-center">
+      <div className={styles.cardSelectionScreen}>
+        <div className={styles.cardSelectionScreen__panel}>
+          <h2 className={styles.cardSelectionScreen__title}>
             Загрузка опций...
           </h2>
         </div>
@@ -186,15 +183,13 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <div className="glass-panel p-10 w-full max-w-4xl animate-fade-in-up">
-          <h2 className="text-2xl font-bold text-red-500 mb-4 text-center">
-            Ошибка
-          </h2>
-          <p className="text-white/60 text-center">{error}</p>
+      <div className={styles.cardSelectionScreen}>
+        <div className={styles.cardSelectionScreen__panel}>
+          <h2 className={styles.cardSelectionScreen__errorTitle}>Ошибка</h2>
+          <p className={styles.cardSelectionScreen__description}>{error}</p>
           <Button
             onClick={fetchOptions}
-            className="mt-4 bg-krutagidon-purple hover:bg-krutagidon-purple/80"
+            className={styles.cardSelectionScreen__retryButton}
           >
             Попробовать снова
           </Button>
@@ -204,54 +199,57 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <div className="glass-panel p-10 w-full max-w-4xl animate-fade-in-up">
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl font-bold text-white mb-2">
+    <div className={styles.cardSelectionScreen}>
+      <div className={styles.cardSelectionScreen__panel}>
+        <div className={styles.cardSelectionScreen__header}>
+          <h2 className={styles.cardSelectionScreen__title}>
             {stepTitles[step as keyof typeof stepTitles]}
           </h2>
-          <div className="flex justify-center items-center space-x-2 mb-4">
+          <div className={styles.cardSelectionScreen__stepIndicator}>
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
-                className={`w-3 h-3 rounded-full ${
-                  s === step ? "bg-krutagidon-purple" : "bg-gray-600"
-                }`}
+                className={cn(
+                  styles.cardSelectionScreen__stepDot,
+                  s === step && styles.cardSelectionScreen__stepDotActive
+                )}
               />
             ))}
           </div>
-          <p className="text-white/60">
+          <p className={styles.cardSelectionScreen__description}>
             Шаг {step} из 3: Выберите одну карту для вашей стартовой колоды
           </p>
         </div>
 
-        <div className="h-[50vh] overflow-y-auto grid grid-cols-2 gap-6 mb-8">
+        <div className={styles.cardSelectionScreen__cardGrid}>
           {stepCards[step as keyof typeof stepCards].map((card, index) => (
-            <div key={index} className="flex flex-col items-center">
+            <div
+              key={index}
+              className={styles.cardSelectionScreen__cardWrapper}
+            >
               <GameCard
                 card={card}
                 isPlayable={true}
-                className={cn(
-                  "w-3/4 transform hover:scale-105 transition-all hover:shadow-neon cursor-pointer",
-                  {
-                    "w-full": card.type === "property",
-                    "w-34": card.type === "playerArea",
-                  }
-                )}
+                className={cn(styles.cardSelectionScreen__card, {
+                  [styles.cardSelectionScreen__cardFullWidth]:
+                    card.type === "property",
+                  [styles.cardSelectionScreen__cardPlayerArea]:
+                    card.type === "playerArea",
+                })}
                 onClick={() => handleCardSelect(card)}
               />
             </div>
           ))}
         </div>
 
-        <div className="flex justify-between">
+        <div className={styles.cardSelectionScreen__footer}>
           {step > 1 ? (
             <Button
               variant="outline"
-              className="bg-black/50 hover:bg-krutagidon-purple/50"
+              className={styles.cardSelectionScreen__backButton}
               onClick={handlePrevStep}
             >
-              <ArrowLeft className="mr-1 h-4 w-4" />
+              <ArrowLeft className={styles.cardSelectionScreen__backIcon} />
               Назад
             </Button>
           ) : (

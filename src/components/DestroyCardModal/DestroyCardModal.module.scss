@@ -1,0 +1,47 @@
+.destroyCardModal__content {
+  @apply bg-gray-900 border-purple-600;
+}
+
+.destroyCardModal__title {
+  @apply text-white;
+}
+
+.destroyCardModal__body {
+  @apply grid gap-4 py-4;
+}
+
+.destroyCardModal__description {
+  @apply text-white text-sm;
+}
+
+.destroyCardModal__emptyMessage {
+  @apply text-white text-sm;
+}
+
+.destroyCardModal__cardList {
+  @apply flex flex-wrap gap-2;
+}
+
+.destroyCardModal__cardWrapper {
+  @apply cursor-pointer transition-all;
+}
+
+.destroyCardModal__cardWrapperSelected {
+  @apply border-yellow-500 border-2;
+}
+
+.destroyCardModal__cardWrapperDefault {
+  @apply border-transparent border-2;
+}
+
+.destroyCardModal__card {
+  @apply w-16 h-28;
+}
+
+.destroyCardModal__cancelButton {
+  @apply border-red-600 text-white;
+}
+
+.destroyCardModal__destroyButton {
+  @apply bg-gradient-to-r from-purple-600 to-red-600 text-white;
+}

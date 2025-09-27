@@ -1,0 +1,31 @@
+.defenseModal__content {
+  @apply bg-gray-900 border-purple-600;
+}
+
+.defenseModal__title {
+  @apply text-white;
+}
+
+.defenseModal__body {
+  @apply grid gap-4 py-4;
+}
+
+.defenseModal__description {
+  @apply text-white text-sm;
+}
+
+.defenseModal__cardList {
+  @apply space-y-2;
+}
+
+.defenseModal__card {
+  @apply p-2 rounded-md cursor-pointer transition-all bg-gray-800 border border-gray-700 hover:border-gray-500;
+}
+
+.defenseModal__cardName {
+  @apply text-sm font-semibold text-white;
+}
+
+.defenseModal__cancelButton {
+  @apply border-red-600 text-white;
+}

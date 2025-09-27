@@ -1,0 +1,71 @@
+.gameCard {
+  @apply flex flex-col;
+}
+
+.gameCard__playable {
+  @apply cursor-pointer transform transition-all;
+}
+
+.gameCard__notPlayable {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.gameCard__hovered {
+  @apply hover:scale-105 z-10;
+}
+
+.gameCard__inner {
+  @apply flex flex-col h-full;
+}
+
+.gameCard__innerFlipped {
+  @apply animate-pulse;
+}
+
+.gameCard__front {
+  @apply flex flex-col h-full;
+}
+
+.gameCard__content {
+  @apply p-2 flex flex-col h-full;
+}
+
+.gameCard__header {
+  @apply flex justify-between items-center mb-1;
+}
+
+.gameCard__name {
+  @apply text-xs font-bold text-white;
+}
+
+.gameCard__cost {
+  @apply bg-yellow-500 text-black font-bold rounded-full h-6 w-6 flex items-center justify-center;
+}
+
+.gameCard__imageContainer {
+  @apply w-full h-20 rounded overflow-hidden mb-1;
+}
+
+.gameCard__image {
+  @apply w-full h-full object-cover;
+}
+
+.gameCard__placeholder {
+  @apply w-full h-20 bg-gray-700 rounded flex items-center justify-center mb-1;
+}
+
+.gameCard__footer {
+  @apply flex justify-between items-center;
+}
+
+.gameCard__attackLabel {
+  @apply text-red-500 font-bold text-xs;
+}
+
+.gameCard__back {
+  @apply flex items-center justify-center;
+}
+
+.gameCard__backIcon {
+  @apply text-4xl;
+}

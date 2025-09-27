@@ -1,0 +1,135 @@
+.lobby {
+  @apply w-full max-w-2xl mx-auto shadow-lg overflow-hidden;
+}
+
+.lobby__loading {
+  @apply min-h-[400px] w-full flex flex-col items-center justify-center p-4;
+}
+
+.lobby__loadingIcon {
+  @apply h-8 w-8 animate-spin text-blue-500 mb-4;
+}
+
+.lobby__loadingText {
+  @apply text-gray-500;
+}
+
+.lobby__error {
+  @apply min-h-[400px] w-full flex flex-col items-center justify-center p-4;
+}
+
+.lobby__errorText {
+  @apply text-red-500 mb-2;
+}
+
+.lobby__homeButton {
+  @apply border-gray-300 text-white;
+}
+
+.lobby__header {
+  @apply space-y-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white;
+}
+
+.lobby__headerContent {
+  @apply flex justify-between items-center;
+}
+
+.lobby__title {
+  @apply text-2xl font-bold flex items-center;
+}
+
+.lobby__titleIcon {
+  @apply w-6 h-6 mr-2;
+}
+
+.lobby__playerCount {
+  @apply bg-white/10 border-white/20 text-white hover:bg-white/20;
+}
+
+.lobby__description {
+  @apply text-white/80;
+}
+
+.lobby__content {
+  @apply pt-6;
+}
+
+.lobby__playersSection {
+  @apply space-y-6;
+}
+
+.lobby__playersTitle {
+  @apply text-lg font-medium mb-3 flex items-center;
+}
+
+.lobby__playersIcon {
+  @apply w-5 h-5 mr-2;
+}
+
+.lobby__playersList {
+  @apply space-y-3;
+}
+
+.lobby__player {
+  @apply flex items-center p-3 rounded-md transition-colors bg-gray-800/10 hover:bg-gray-800/20;
+}
+
+.lobby__playerAvatar {
+  @apply h-10 w-10 border-2 border-gray-900;
+}
+
+.lobby__playerInfo {
+  @apply ml-3 flex-1;
+}
+
+.lobby__playerName {
+  @apply font-medium flex items-center;
+}
+
+.lobby__playerRole {
+  @apply text-xs text-gray-500;
+}
+
+.lobby__creatorIcon {
+  @apply w-4 h-4 ml-1 text-yellow-500;
+}
+
+.lobby__emptySlot {
+  @apply flex items-center p-3 rounded-md border-2 border-dashed border-gray-500/30 text-gray-500 justify-center;
+}
+
+.lobby__emptySlotIcon {
+  @apply w-5 h-5 mr-2;
+}
+
+.lobby__progressSection {
+  @apply space-y-2;
+}
+
+.lobby__progressTitle {
+  @apply text-sm font-medium;
+}
+
+.lobby__progressBar {
+  @apply h-2;
+}
+
+.lobby__progressText {
+  @apply text-xs text-gray-500 text-center;
+}
+
+.lobby__footer {
+  @apply border-t pt-6 flex justify-between flex-wrap gap-3;
+}
+
+.lobby__inviteButton {
+  @apply border-gray-300 text-white;
+}
+
+.lobby__readyButton {
+  @apply bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700;
+}
+
+.lobby__readyIcon {
+  @apply mr-2 h-4 w-4;
+}

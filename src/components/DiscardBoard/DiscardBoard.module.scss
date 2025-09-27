@@ -1,0 +1,19 @@
+.discardBoard {
+  @apply h-full p-4 transition-all duration-300 border-yellow-500 shadow-[0_0_15px_rgba(255,255,0,0.5)];
+}
+
+.discardBoard__content {
+  @apply h-full;
+}
+
+.discardBoard__title {
+  @apply text-white text-sm font-semibold mb-1;
+}
+
+.discardBoard__cardList {
+  @apply flex flex-wrap gap-2 h-full;
+}
+
+.discardBoard__card {
+  @apply w-24 h-40 opacity-90;
+}

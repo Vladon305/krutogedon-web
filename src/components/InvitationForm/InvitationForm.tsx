@@ -31,6 +31,7 @@ import {
 // import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
+import styles from "./InvitationForm.module.scss";
 
 // Invitation form schema
 // const inviteSchema = z.object({
@@ -130,17 +131,17 @@ const InvitationForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-lg border-0 glass-panel overflow-hidden">
-      <CardHeader className="space-y-1 text-center bg-gradient-to-r from-orange-500 to-yellow-500 text-white">
-        <CardTitle className="text-2xl font-bold">
-          <Send className="w-6 h-6 inline mr-2" />
+    <Card className={styles.invitationForm}>
+      <CardHeader className={styles.invitationForm__header}>
+        <CardTitle className={styles.invitationForm__title}>
+          <Send className={styles.invitationForm__titleIcon} />
           Пригласить игроков
         </CardTitle>
-        <CardDescription className="text-white/80">
+        <CardDescription className={styles.invitationForm__description}>
           Отправить приглашения друзьям присоединиться к игре
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className={styles.invitationForm__content}>
         {/* <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -218,38 +219,28 @@ const InvitationForm = () => {
           </form>
         </Form> */}
 
-        <Separator className="my-4" />
+        <Separator className={styles.invitationForm__separator} />
 
-        <div className="space-y-4">
+        <div className={styles.invitationForm__linkSection}>
           <div>
-            <h3 className="text-sm font-medium mb-2">
+            <h3 className={styles.invitationForm__linkTitle}>
               Или поделиться ссылкой напрямую
             </h3>
-            <div className="flex items-center space-x-2">
-              <div className="relative flex-1">
-                {/* <Link className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /> */}
-                {/* <Input
-                  value={
-                    currentInviteLink ||
-                    'Нажмите "Создать ссылку", чтобы получить ссылку'
-                  }
-                  readOnly
-                  className="pl-10 pr-24 text-sm"
-                /> */}
-                {/* <div className="absolute right-1 top-1 flex space-x-1"> */}
+            <div className={styles.invitationForm__linkWrapper}>
+              <div className={styles.invitationForm__linkInput}>
                 {currentInviteLink ? (
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8"
+                    className={styles.invitationForm__copyButton}
                     onClick={copyInviteLink}
                   >
                     {copied ? (
-                      <Check className="h-4 w-4" />
+                      <Check className={styles.invitationForm__icon} />
                     ) : (
-                      <Copy className="h-4 w-4" />
+                      <Copy className={styles.invitationForm__icon} />
                     )}
-                    <span className="ml-1">
+                    <span className={styles.invitationForm__copyText}>
                       {copied ? "Скопировано" : "Копировать"}
                     </span>
                   </Button>
@@ -257,38 +248,39 @@ const InvitationForm = () => {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8"
+                    className={styles.invitationForm__createButton}
                     onClick={createInviteLink}
                     disabled={creatingLink}
                   >
                     {creatingLink ? "Создание..." : "Создать ссылку"}
                   </Button>
                 )}
-                {/* </div> */}
               </div>
             </div>
           </div>
         </div>
 
         {invitations.length > 0 && (
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">Созданные приглашения:</h3>
-            <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+          <div className={styles.invitationForm__invitations}>
+            <h3 className={styles.invitationForm__invitationsTitle}>
+              Созданные приглашения:
+            </h3>
+            <div className={styles.invitationForm__invitationsList}>
               {invitations.map((invitation) => (
                 <div
                   key={invitation.id}
-                  className="p-3 bg-secondary/30 rounded-md text-sm"
+                  className={styles.invitationForm__invitation}
                 >
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="font-medium">
+                  <div className={styles.invitationForm__invitationHeader}>
+                    <span className={styles.invitationForm__invitationId}>
                       Приглашение #{invitation.id}
                     </span>
-                    <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800">
+                    <span className={styles.invitationForm__invitationStatus}>
                       {invitation.status}
                     </span>
                   </div>
                   {invitation.lobbyLink && (
-                    <div className="text-xs text-blue-600 hover:underline overflow-hidden text-ellipsis">
+                    <div className={styles.invitationForm__invitationLink}>
                       <Link
                         to={invitation.lobbyLink}
                         // target="_blank"

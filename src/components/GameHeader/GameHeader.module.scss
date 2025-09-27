@@ -1,0 +1,43 @@
+.gameHeader {
+  @apply p-4 mb-6;
+}
+
+.gameHeader__content {
+  @apply flex justify-between items-center;
+}
+
+.gameHeader__titleSection {
+  @apply flex flex-col;
+}
+
+.gameHeader__title {
+  @apply text-2xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 text-transparent bg-clip-text;
+}
+
+.gameHeader__roundInfo {
+  @apply text-white/70 text-sm;
+}
+
+.gameHeader__actions {
+  @apply flex items-center;
+}
+
+.gameHeader__playerInfo {
+  @apply flex items-center;
+}
+
+.gameHeader__playerDetails {
+  @apply mr-4 text-right;
+}
+
+.gameHeader__currentPlayer {
+  @apply text-white font-semibold;
+}
+
+.gameHeader__turnStatus {
+  @apply text-xs text-white/70;
+}
+
+.gameHeader__endTurnButton {
+  @apply bg-purple-600 hover:bg-purple-600/80;
+}

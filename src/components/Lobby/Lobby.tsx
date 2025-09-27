@@ -31,6 +31,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import styles from "./Lobby.module.scss";
 
 const Lobby: React.FC = () => {
   const { invitationId } = useParams<{ invitationId: string }>();
@@ -174,18 +175,18 @@ const Lobby: React.FC = () => {
 
   if (lobby.status === "loading") {
     return (
-      <div className="min-h-[400px] w-full flex flex-col items-center justify-center p-4">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Загрузка лобби...</p>
+      <div className={styles.lobby__loading}>
+        <Loader2 className={styles.lobby__loadingIcon} />
+        <p className={styles.lobby__loadingText}>Загрузка лобби...</p>
       </div>
     );
   }
 
   if (lobby.status === "failed" || !lobby.invitation) {
     return (
-      <div className="min-h-[400px] w-full flex flex-col items-center justify-center p-4">
-        <p className="text-destructive mb-2">Ошибка: {lobby.error}</p>
-        <Button variant="outline">
+      <div className={styles.lobby__error}>
+        <p className={styles.lobby__errorText}>Ошибка: {lobby.error}</p>
+        <Button variant="outline" className={styles.lobby__homeButton}>
           <Link to={"/"}>Вернуться на главную</Link>
         </Button>
       </div>
@@ -193,53 +194,47 @@ const Lobby: React.FC = () => {
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-lg overflow-hidden">
-      <CardHeader className="space-y-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-2xl font-bold flex items-center">
-            <Users className="w-6 h-6 mr-2" />
+    <Card className={styles.lobby}>
+      <CardHeader className={styles.lobby__header}>
+        <div className={styles.lobby__headerContent}>
+          <CardTitle className={styles.lobby__title}>
+            <Users className={styles.lobby__titleIcon} />
             Лобби игры #{lobby.invitation.id}
           </CardTitle>
-          <Badge
-            variant="outline"
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-          >
+          <Badge variant="outline" className={styles.lobby__playerCount}>
             {lobby.players.length}/5 игроков
           </Badge>
         </div>
-        <CardDescription className="text-white/80">
+        <CardDescription className={styles.lobby__description}>
           Создатель: {lobby.invitation?.sender?.username}
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="pt-6">
-        <div className="space-y-6">
+      <CardContent className={styles.lobby__content}>
+        <div className={styles.lobby__playersSection}>
           <div>
-            <h3 className="text-lg font-medium mb-3 flex items-center">
-              <User className="w-5 h-5 mr-2" />
+            <h3 className={styles.lobby__playersTitle}>
+              <User className={styles.lobby__playersIcon} />
               Игроки:
             </h3>
-            <div className="space-y-3">
+            <div className={styles.lobby__playersList}>
               {lobby.players.map((player, index) => (
-                <div
-                  key={player.id}
-                  className="flex items-center p-3 rounded-md transition-colors bg-secondary/10 hover:bg-secondary/20"
-                >
-                  <Avatar className="h-10 w-10 border-2 border-background">
+                <div key={player.id} className={styles.lobby__player}>
+                  <Avatar className={styles.lobby__playerAvatar}>
                     <AvatarImage src={player.avatar} alt={player.username} />
                     <AvatarFallback>
                       {player.username.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="ml-3 flex-1">
-                    <div className="font-medium flex items-center">
+                  <div className={styles.lobby__playerInfo}>
+                    <div className={styles.lobby__playerName}>
                       {player.username}{" "}
                       {player.ready ? "✅ Готов" : "⏳ Ожидание"}
                       {index === 0 && (
-                        <Crown className="w-4 h-4 ml-1 text-yellow-500" />
+                        <Crown className={styles.lobby__creatorIcon} />
                       )}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className={styles.lobby__playerRole}>
                       {index === 0 ? "Создатель" : "Участник"}
                     </div>
                   </div>
@@ -247,21 +242,23 @@ const Lobby: React.FC = () => {
               ))}
 
               {lobby.players.length < 5 && (
-                <div className="flex items-center p-3 rounded-md border-2 border-dashed border-muted-foreground/30 text-muted-foreground justify-center">
-                  <UserPlus className="w-5 h-5 mr-2" />
+                <div className={styles.lobby__emptySlot}>
+                  <UserPlus className={styles.lobby__emptySlotIcon} />
                   <span>Ожидание игроков...</span>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">Прогресс наполнения лобби:</h3>
+          <div className={styles.lobby__progressSection}>
+            <h3 className={styles.lobby__progressTitle}>
+              Прогресс наполнения лобби:
+            </h3>
             <Progress
               value={(lobby.players.length / 5) * 100}
-              className="h-2"
+              className={styles.lobby__progressBar}
             />
-            <p className="text-xs text-muted-foreground text-center">
+            <p className={styles.lobby__progressText}>
               {lobby.players.length < 2
                 ? "Нужно минимум 2 игрока чтобы начать игру"
                 : lobby.players.length === 5
@@ -272,14 +269,16 @@ const Lobby: React.FC = () => {
         </div>
       </CardContent>
 
-      <CardFooter className="border-t pt-6 flex justify-between flex-wrap gap-3">
-        <Button variant="outline">Пригласить еще</Button>
+      <CardFooter className={styles.lobby__footer}>
+        <Button variant="outline" className={styles.lobby__inviteButton}>
+          Пригласить еще
+        </Button>
 
         {/* {isCreator && ( */}
         <Button
           onClick={handleSetReady}
           disabled={lobby.players.length < 2}
-          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+          className={styles.lobby__readyButton}
         >
           {/* {startingGame ? (
               <>
@@ -293,7 +292,7 @@ const Lobby: React.FC = () => {
               </>
             )} */}
           <>
-            <Play className="mr-2 h-4 w-4" />
+            <Play className={styles.lobby__readyIcon} />
             Готово
             {/* Начать игру */}
           </>

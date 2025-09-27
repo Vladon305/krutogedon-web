@@ -7,7 +7,7 @@ import {
   makeMove,
   onAttackNotification,
   onAttackRequired,
-  onAttackTargetNotification, // Добавляем новый обработчик
+  onAttackTargetNotification,
   onAttackTargetRequired,
   onDefenseRequired,
   onGameUpdate,
@@ -34,6 +34,7 @@ import DefenseModal from "../DefenseModal/DefenseModal";
 import DestroyCardModal from "../DestroyCardModal/DestroyCardModal";
 import TopDeckSelectionModal from "../TopDeckSelectionModal/TopDeckSelectionModal";
 import { calculatePlayerPositions, getPlayerPositions } from "@/lib/utils";
+import styles from "./GameBoard.module.scss";
 
 interface GameBoardProps {
   game: Game;
@@ -57,7 +58,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const [topDeckActions, setTopDeckActions] = useState<string[]>([]);
   const [destroyCards, setDestroyCards] = useState<Card[]>([]);
   const [attackTargets, setAttackTargets] = useState<number[]>([]);
-  const [modalAttackTargets, setModalAttackTargets] = useState<number[]>([]); // Добавляем для модального окна
+  const [modalAttackTargets, setModalAttackTargets] = useState<number[]>([]);
   const [attackTargetModalOpen, setAttackTargetModalOpen] = useState(false);
   const [attackingCardId, setAttackingCardId] = useState<number | null>(null);
   const [attackData, setAttackData] = useState<any>(null);
@@ -71,7 +72,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
     const socket = initSocket();
 
-    // Передаём playerId при подключении к игре
     joinGame(game.id.toString(), user.id.toString());
 
     onGameUpdate((gameState) => {
@@ -150,7 +150,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
     };
   }, [game, user, setSocketGameState]);
 
-  // 1. Обновляем размеры при монтировании и ресайзе
   useEffect(() => {
     const updateSize = () => {
       if (gameBoardContainerRef.current) {
@@ -166,8 +165,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   if (!game || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white text-xl">Загрузка игры...</div>
+      <div className={styles.gameBoard__loading}>
+        <div className={styles.gameBoard__loadingText}>Загрузка игры...</div>
       </div>
     );
   }
@@ -323,11 +322,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
   console.log("playersPosition", playersPosition);
 
   return (
-    <div className="container h-full mx-auto p-4 max-w-6xl">
+    <div className={styles.gameBoard}>
       {notification && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 glass-panel p-4 text-white">
-          {notification}
-        </div>
+        <div className={styles.gameBoard__notification}>{notification}</div>
       )}
       <GameHeader
         gameState={gameState}
@@ -336,38 +333,36 @@ const GameBoard: React.FC<GameBoardProps> = ({
       />
 
       {gameState.gameOver ? (
-        <div className="glass-panel p-8 text-center animate-fade-in-up">
-          <h2 className="text-3xl font-bold text-yellow-500 mb-4">
-            Game Over!
-          </h2>
-          <p className="text-white text-xl mb-6">
+        <div className={styles.gameBoard__gameOver}>
+          <h2 className={styles.gameBoard__gameOverTitle}>Game Over!</h2>
+          <p className={styles.gameBoard__gameOverText}>
             {gameState.winner?.username} wins with{" "}
             {gameState.winner?.krutagidonCups} Krutagidon Cups!
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+          <div className={styles.gameBoard__playerResults}>
             {gameState.players.map((player, index: number) => (
               <div
                 key={`result-${index}`}
-                className={`glass-panel p-4 ${
+                className={`${styles.gameBoard__playerCard} ${
                   player.id === gameState.winner?.id
-                    ? "border-yellow-500 shadow-neon"
+                    ? styles.gameBoard__playerCardWinner
                     : ""
                 }`}
               >
-                <h3 className="text-white font-bold mb-2 flex items-center">
+                <h3 className={styles.gameBoard__playerName}>
                   {player.username}
                   {player.id === gameState.winner?.id && (
-                    <span className="ml-2 text-yellow-500">👑</span>
+                    <span className={styles.gameBoard__winnerIcon}>👑</span>
                   )}
                 </h3>
-                <div className="text-white/70 text-sm">
+                <div className={styles.gameBoard__playerStats}>
                   Krutagidon Cups: {player.krutagidonCups}
                 </div>
-                <div className="text-white/70 text-sm">
+                <div className={styles.gameBoard__playerStats}>
                   Dead Wizard Tokens: {player.deadWizardCount}
                 </div>
-                <div className="text-white/70 text-sm">
+                <div className={styles.gameBoard__playerStats}>
                   Cards in Collection:{" "}
                   {player.deck.length +
                     player.discard.length +
@@ -382,7 +377,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         <>
           <div
             ref={gameBoardContainerRef}
-            className="relative max-h-full h-[88%] grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6"
+            className={styles.gameBoard__container}
           >
             {playersPosition.map((position, index) => (
               <div
@@ -393,7 +388,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   bottom: position.bottom,
                   transform: position.transform,
                   zIndex: position.zIndex ?? 1,
-
                   width: 340,
                   height: 520,
                 }}
@@ -408,59 +402,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 />
               </div>
             ))}
-
-            {/* <div className="space-y-4">
-              <Marketplace
-                title="Junk Shop"
-                cards={gameState.currentMarketplace}
-                onBuyCard={(cardId: number) => handleBuyCard(cardId, false)}
-                playerPower={currentPlayer.power}
-              />
-            </div>
-
-            <div className="space-y-4">
-              <Marketplace
-                title="Legendary Junk Shop"
-                cards={gameState.currentLegendaryMarketplace}
-                onBuyCard={(cardId: number) => handleBuyCard(cardId, true)}
-                playerPower={currentPlayer.power}
-              />
-            </div> */}
-            {/* <div className="lg:col-span-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {gameState.players.map((player: Player, index: number) => (
-                  <PlayerArea
-                    key={`player-${index}`}
-                    player={player}
-                    isCurrentPlayer={player.id === myPlayer?.id}
-                    isPlayerMove={currentPlayerId === myPlayer?.id}
-                    onPlayCard={handlePlayCard}
-                  />
-                ))}
-              </div>
-            </div> */}
-
-            {/* <div className="space-y-4">
-              <Marketplace
-                title="Junk Shop"
-                cards={gameState.currentMarketplace}
-                onBuyCard={(cardId: number) => handleBuyCard(cardId, false)}
-                playerPower={currentPlayer.power}
-              />
-            </div> */}
-
-            {/* <div className="space-y-4 col-span-2 h-full">
-              <DiscardBoard discard={currentPlayer?.discard} />
-            </div> */}
-
-            {/* <div className="space-y-4">
-              <Marketplace
-                title="Legendary Junk Shop"
-                cards={gameState.currentLegendaryMarketplace}
-                onBuyCard={(cardId: number) => handleBuyCard(cardId, true)}
-                playerPower={currentPlayer.power}
-              />
-            </div> */}
           </div>
         </>
       )}
@@ -506,7 +447,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <DefenseModal
         open={defenseModalOpen}
         onClose={() => {
-          handleDefense(null); // Если закрываем без выбора, считаем, что игрок отказался от защиты
+          handleDefense(null);
         }}
         defenseCards={defenseCards}
         attackData={attackData?.attackData}

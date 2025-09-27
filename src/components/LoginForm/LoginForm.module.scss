@@ -1,0 +1,67 @@
+.loginForm {
+  @apply w-full max-w-md mx-auto shadow-lg border-0 overflow-hidden;
+}
+
+.loginForm__header {
+  @apply space-y-1 text-center bg-gradient-to-r from-purple-500 to-indigo-600 text-white;
+}
+
+.loginForm__title {
+  @apply text-2xl font-bold;
+}
+
+.loginForm__titleIcon {
+  @apply w-6 h-6 inline mr-2;
+}
+
+.loginForm__description {
+  @apply text-white/80;
+}
+
+.loginForm__content {
+  @apply pt-6;
+}
+
+.loginForm__form {
+  @apply space-y-4;
+}
+
+.loginForm__inputWrapper {
+  @apply relative;
+}
+
+.loginForm__inputIcon {
+  @apply absolute left-3 top-3 h-4 w-4 text-gray-500;
+}
+
+.loginForm__input {
+  @apply pl-10;
+}
+
+.loginForm__passwordInput {
+  @apply pl-10 pr-10;
+}
+
+.loginForm__togglePassword {
+  @apply absolute right-0 top-0 h-full px-3 py-2 text-gray-500;
+}
+
+.loginForm__toggleIcon {
+  @apply h-4 w-4;
+}
+
+.loginForm__submitButton {
+  @apply w-full;
+}
+
+.loginForm__footer {
+  @apply flex flex-col space-y-2 border-t pt-4;
+}
+
+.loginForm__footerText {
+  @apply text-sm text-center text-gray-500;
+}
+
+.loginForm__registerLink {
+  @apply text-blue-500 hover:underline;
+}

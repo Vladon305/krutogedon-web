@@ -1,4 +1,3 @@
-// components/DefenseModal.tsx
 import React, { useEffect } from "react";
 import { Card } from "@/hooks/types";
 import {
@@ -9,6 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import styles from "./DefenseModal.module.scss";
 
 interface DefenseModalProps {
   open: boolean;
@@ -43,38 +43,36 @@ const DefenseModal: React.FC<DefenseModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-krutagidon-dark border-krutagidon-purple">
+      <DialogContent className={styles.defenseModal__content}>
         <DialogHeader>
-          <DialogTitle className="text-white">
+          <DialogTitle className={styles.defenseModal__title}>
             Defend Against Attack
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          <div className="text-white text-sm">
+        <div className={styles.defenseModal__body}>
+          <div className={styles.defenseModal__description}>
             Player {attackData.attackerId} attacks you with {attackData.damage}{" "}
             damage. Choose a defense card or skip.
           </div>
 
-          <div className="space-y-2">
+          <div className={styles.defenseModal__cardList}>
             {defenseCards.map((card) => (
               <div
                 key={card.id}
-                className="p-2 rounded-md cursor-pointer transition-all bg-gray-800 border border-gray-700 hover:border-gray-500"
+                className={styles.defenseModal__card}
                 onClick={() => onDefend(card.id)}
               >
-                <div className="text-sm font-semibold text-white">
+                <div className={styles.defenseModal__cardName}>
                   Use {card.name}
                 </div>
               </div>
             ))}
             <div
-              className="p-2 rounded-md cursor-pointer transition-all bg-gray-800 border border-gray-700 hover:border-gray-500"
+              className={styles.defenseModal__card}
               onClick={() => onDefend(null)}
             >
-              <div className="text-sm font-semibold text-white">
-                Skip Defense
-              </div>
+              <div className={styles.defenseModal__cardName}>Skip Defense</div>
             </div>
           </div>
         </div>
@@ -83,7 +81,7 @@ const DefenseModal: React.FC<DefenseModalProps> = ({
           <Button
             onClick={onClose}
             variant="outline"
-            className="border-krutagidon-red text-white"
+            className={styles.defenseModal__cancelButton}
           >
             Cancel
           </Button>

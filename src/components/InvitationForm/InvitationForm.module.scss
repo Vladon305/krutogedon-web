@@ -1,0 +1,91 @@
+.invitationForm {
+  @apply w-full max-w-md mx-auto shadow-lg border-0;
+}
+
+.invitationForm__header {
+  @apply space-y-1 text-center bg-gradient-to-r from-orange-500 to-yellow-500 text-white;
+}
+
+.invitationForm__title {
+  @apply text-2xl font-bold;
+}
+
+.invitationForm__titleIcon {
+  @apply w-6 h-6 inline mr-2;
+}
+
+.invitationForm__description {
+  @apply text-white/80;
+}
+
+.invitationForm__content {
+  @apply pt-6;
+}
+
+.invitationForm__separator {
+  @apply my-4;
+}
+
+.invitationForm__linkSection {
+  @apply space-y-4;
+}
+
+.invitationForm__linkTitle {
+  @apply text-sm font-medium mb-2;
+}
+
+.invitationForm__linkWrapper {
+  @apply flex items-center space-x-2;
+}
+
+.invitationForm__linkInput {
+  @apply relative flex-1;
+}
+
+.invitationForm__copyButton {
+  @apply h-8;
+}
+
+.invitationForm__createButton {
+  @apply h-8;
+}
+
+.invitationForm__icon {
+  @apply h-4 w-4;
+}
+
+.invitationForm__copyText {
+  @apply ml-1;
+}
+
+.invitationForm__invitations {
+  @apply space-y-2;
+}
+
+.invitationForm__invitationsTitle {
+  @apply text-sm font-medium;
+}
+
+.invitationForm__invitationsList {
+  @apply space-y-2 max-h-40 overflow-y-auto pr-2;
+}
+
+.invitationForm__invitation {
+  @apply p-3 bg-gray-800/30 rounded-md text-sm;
+}
+
+.invitationForm__invitationHeader {
+  @apply flex justify-between items-center mb-1;
+}
+
+.invitationForm__invitationId {
+  @apply font-medium;
+}
+
+.invitationForm__invitationStatus {
+  @apply text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800;
+}
+
+.invitationForm__invitationLink {
+  @apply text-xs text-blue-600 hover:underline overflow-hidden text-ellipsis;
+}

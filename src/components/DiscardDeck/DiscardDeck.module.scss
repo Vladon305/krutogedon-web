@@ -1,0 +1,19 @@
+.discardDeck {
+  @apply flex flex-col;
+}
+
+.discardDeck__content {
+  @apply flex flex-col;
+}
+
+.discardDeck__label {
+  @apply text-white;
+}
+
+.discardDeck__cardContainer {
+  @apply cursor-pointer;
+}
+
+.discardDeck__card {
+  @apply w-24 h-36;
+}
