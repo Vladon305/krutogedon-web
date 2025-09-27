@@ -13,7 +13,6 @@ export interface AuthState {
     username: string;
     email: string;
   } | null;
-  refreshToken: string;
   accessToken: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
@@ -23,7 +22,6 @@ export interface AuthState {
 const initialState: AuthState = {
   user: null,
   accessToken: null,
-  refreshToken: null,
   status: "idle",
   error: null,
   isVerifying: false,
@@ -109,6 +107,9 @@ const authSlice = createSlice({
     setVerifying: (state, action) => {
       state.isVerifying = action.payload;
     },
+    setAccessToken: (state, action) => {
+      state.accessToken = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -171,7 +172,6 @@ const authSlice = createSlice({
         state.status = "succeeded";
         state.user = action.payload.user;
         console.log("action.payload", action.payload);
-        state.refreshToken = action.payload.user.refreshToken;
         state.accessToken = action.payload.accessToken;
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -181,5 +181,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearAuth, setVerifying } = authSlice.actions;
+export const { clearAuth, setVerifying, setAccessToken } = authSlice.actions;
 export default authSlice.reducer;

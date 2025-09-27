@@ -97,6 +97,7 @@ export const LoginForm = () => {
                       <Input
                         placeholder="you@example.com"
                         className={styles.loginForm__input}
+                        autoComplete={"email"}
                         {...field}
                       />
                     </div>
@@ -118,6 +119,7 @@ export const LoginForm = () => {
                       <Input
                         type={showPassword ? "text" : "password"}
                         className={styles.loginForm__passwordInput}
+                        autoComplete={"current-password"}
                         {...field}
                       />
                       <Button

@@ -35,26 +35,21 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   const dispatch = useTypedDispatch();
   const { isAuthenticated } = useAuth();
-  const { accessToken, refreshToken, isVerifying } = useTypedSelector(
-    (state) => state.auth
-  );
+  const { accessToken, isVerifying } = useTypedSelector((state) => state.auth);
 
   useEffect(() => {
     const restoreAuth = async () => {
-      console.log("accessToken", accessToken);
-      if (!accessToken || !isAuthenticated) {
+      // Проверяем токен только если он есть
+      if (accessToken && !isVerifying) {
         dispatch(setVerifying(true));
         try {
           await dispatch(verifyTokenAsync(accessToken) as any).unwrap();
         } catch (error) {
-          if (refreshToken) {
-            try {
-              await dispatch(refreshTokenAsync() as any).unwrap();
-            } catch (refreshError) {
-              console.log("Failed to refresh token:", refreshError);
-              dispatch(clearAuth());
-            }
-          } else {
+          // Токен невалидный, пробуем обновить
+          try {
+            await dispatch(refreshTokenAsync() as any).unwrap();
+          } catch (refreshError) {
+            console.log("Failed to refresh token:", refreshError);
             dispatch(clearAuth());
           }
         } finally {
@@ -64,7 +59,7 @@ const AppContent = () => {
     };
 
     restoreAuth();
-  }, [dispatch, accessToken, refreshToken]);
+  }, []);
 
   if (isVerifying) {
     return <div>Проверка авторизации...</div>;
@@ -126,15 +121,15 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <PersistGate loading={<div>Загрузка...</div>} persistor={persistor}>
-          <Provider store={store}>
+        <Provider store={store}>
+          <PersistGate loading={<div>Загрузка...</div>} persistor={persistor}>
             <SocketProvider>
               <GameProvider>
                 <AppContent />
               </GameProvider>
             </SocketProvider>
-          </Provider>
-        </PersistGate>
+          </PersistGate>
+        </Provider>
       </TooltipProvider>
     </QueryClientProvider>
   );

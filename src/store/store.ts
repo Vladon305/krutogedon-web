@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { encryptTransform } from "redux-persist-transform-encrypt";
+import { setApiStore } from "../api/api";
 
 import authReducer from "../features/auth/authSlice";
 import invitationsReducer from "../features/invitations/invitationsSlice";
@@ -47,6 +48,9 @@ export const store = configureStore({
       },
     }),
 });
+
+// Инициализируем store в api.ts после его создания
+setApiStore(store);
 
 export const persistor = persistStore(store);
 
