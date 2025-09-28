@@ -43,7 +43,7 @@ const MarketplaceModal: React.FC<MarketplaceModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-fit min-w-fit bg-krutagidon-dark border-krutagidon-purple">
+      <DialogContent className="w-fit min-w-fit max-h-[90vh] bg-krutagidon-dark border-krutagidon-purple">
         <DialogHeader>
           <DialogTitle className="text-white">Marketplace</DialogTitle>
         </DialogHeader>
@@ -54,7 +54,7 @@ const MarketplaceModal: React.FC<MarketplaceModalProps> = ({
             {playerPower}
           </span>
           <div className="flex space-y-2">
-            <div>
+            <div className="w-[28rem] max-h-96">
               <Marketplace
                 title="Junk Shop"
                 cards={marketplace}

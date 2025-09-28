@@ -36,6 +36,10 @@ const GamePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { accessToken } = useAuth();
 
+  const currentPlayer = socketGameState?.players.find(
+    (player) => player.id === socketGameState.currentPlayer
+  );
+
   useEffect(() => {
     if (!gameId || !user || !accessToken) {
       navigate(
@@ -183,7 +187,7 @@ const GamePage: React.FC = () => {
           game={game}
           gameState={socketGameState}
           players={socketGameState.players}
-          currentPlayerId={1}
+          currentPlayerId={currentPlayer?.id}
         />
       ) : setupCompleted ? (
         <CardSelectionScreen

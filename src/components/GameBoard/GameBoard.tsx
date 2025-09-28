@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PlayerArea from "../PlayerArea/PlayerArea";
 import CenterArea from "../CenterArea/CenterArea";
 import styles from "./GameBoard.module.scss";
@@ -9,7 +9,16 @@ import GameHeader from "../GameHeader/GameHeader";
 import { useTypedSelector } from "@/hooks/useTypedSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { makeMove } from "@/api/socketManager";
-import { makeMove as makeMoveApi } from "@/api/gameApi";
+import {
+  makeMove as makeMoveApi,
+  selectAttackTarget,
+  cancelAttackTarget,
+} from "@/api/gameApi";
+import {
+  onAttackTargetRequired,
+  onAttackTargetNotification,
+} from "@/api/socketManager";
+import AttackModal from "../AttackModal/AttackModal";
 
 interface GameBoardProps {
   game: Game;
@@ -25,7 +34,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
   currentPlayerId,
 }) => {
   const { accessToken } = useAuth();
-  const [openMarket, setOpenMarket] = useState(false);
+  const [isOpenMarket, setIsOpenMarket] = useState(false);
+  const [idOpenAttackModal, setIdOpenAttackModal] = useState(false);
+  const [attackModalData, setAttackModalData] = useState<{
+    cardId: number;
+    targets: number[];
+  } | null>(null);
+
   const user = useTypedSelector((state) => state.auth.user);
 
   const currentPlayer = players.find((player) => player.id === currentPlayerId);
@@ -36,16 +51,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   // Определяем позиции для остальных игроков
   const playerPositions: ("left" | "right" | "top-left" | "top-right")[] = [
-    "right", // Позиция 1
-    "left", // Позиция 2
-    "top-left", // Позиция 3
-    "top-right", // Позиция 4
+    "right",
+    "left",
+    "top-left",
+    "top-right",
   ];
 
   // Распределяем остальных игроков по позициям
   const positionedOtherPlayers = otherPlayers.map((player, index) => ({
     player,
-    position: playerPositions[index] || "right", // Если больше 4 игроков, используем "right" по умолчанию
+    position: playerPositions[index] || "right",
   }));
 
   const leftPlayers = otherPlayers.slice(
@@ -54,15 +69,138 @@ const GameBoard: React.FC<GameBoardProps> = ({
   );
   const rightPlayers = otherPlayers.slice(Math.floor(otherPlayers.length / 2));
 
+  // Восстановление состояния при загрузке/обновлении gameState
+  useEffect(() => {
+    console.log("Checking pendingPlayCard:", gameState?.pendingPlayCard);
+
+    // Проверяем, есть ли ожидающая карта для текущего игрока
+    if (
+      gameState?.pendingPlayCard &&
+      gameState.pendingPlayCard.playerId === myPlayer?.id
+    ) {
+      const card = myPlayer.hand.find(
+        (c) => c.id === gameState.pendingPlayCard.cardId
+      );
+      console.log("Found pending card:", card);
+
+      if (card && card.isAttack) {
+        // Получаем список доступных целей
+        const attackTargets = players
+          .filter((p) => p.id !== myPlayer.id && p.health > 0)
+          .map((p) => p.id);
+
+        console.log("Opening attack modal with targets:", attackTargets);
+
+        // Открываем модальное окно с данными
+        setAttackModalData({
+          cardId: gameState.pendingPlayCard.cardId,
+          targets: attackTargets,
+        });
+        setIdOpenAttackModal(true);
+      }
+    } else {
+      // Если нет pendingPlayCard, закрываем модальное окно
+      setIdOpenAttackModal(false);
+      setAttackModalData(null);
+    }
+  }, [gameState?.pendingPlayCard, myPlayer, players]);
+
+  // Подписка на события WebSocket
+  useEffect(() => {
+    if (!user?.id) return;
+
+    console.log("Setting up WebSocket subscriptions for user:", user.id);
+
+    // Подписка на событие выбора цели атаки
+    const unsubscribeAttackTarget = onAttackTargetRequired((data) => {
+      console.log("Attack target required:", data);
+      if (data.playerId === user.id.toString() && data.data) {
+        setAttackModalData({
+          cardId: data.data.cardId,
+          targets: data.data.targets,
+        });
+        setIdOpenAttackModal(true);
+      }
+    });
+
+    // Подписка на уведомление об атаке (для других игроков)
+    const unsubscribeAttackNotification = onAttackTargetNotification((data) => {
+      console.log("Attack target notification:", data);
+      // Здесь можно показать уведомление остальным игрокам
+      // Например: toast или временное сообщение
+    });
+
+    // Очистка подписок при размонтировании
+    return () => {
+      if (typeof unsubscribeAttackTarget === "function") {
+        unsubscribeAttackTarget();
+      }
+      if (typeof unsubscribeAttackNotification === "function") {
+        unsubscribeAttackNotification();
+      }
+    };
+  }, [user?.id]);
+
   const handlePlayCard = async (cardIndex: number) => {
+    if (!currentPlayer) return;
+
     const currentCard = currentPlayer.hand[cardIndex];
+    console.log("Playing card:", currentCard);
+
     try {
+      // Для атакующих карт просто играем карту без opponentId
+      // Бэкенд вернет событие attackTargetRequired
       await makeMoveApi(accessToken, game.id, {
         type: "play-card",
         cardId: currentCard.id,
+        // НЕ передаем opponentId для атакующих карт
       });
     } catch (error) {
       console.error("Ошибка при разыгрывании карты:", error);
+    }
+  };
+
+  const handleAttack = async (targetId: number) => {
+    try {
+      if (!attackModalData || !myPlayer) {
+        console.error("No attack data or player");
+        return;
+      }
+
+      console.log("Attacking target:", targetId);
+
+      // Вызываем API для выбора цели атаки
+      await selectAttackTarget(accessToken, game.id, myPlayer.id, targetId);
+
+      console.log("Attack target selected successfully");
+
+      // Модальное окно закроется автоматически через useEffect
+      // когда pendingPlayCard будет очищен на бэкенде
+    } catch (error) {
+      console.error("Ошибка при выборе цели атаки:", error);
+    }
+  };
+
+  const handleCancelAttack = async () => {
+    try {
+      if (!myPlayer) {
+        console.error("No player found");
+        return;
+      }
+
+      console.log("Cancelling attack");
+
+      // Вызываем API для отмены выбора цели
+      await cancelAttackTarget(accessToken, game.id, myPlayer.id);
+
+      console.log("Attack cancelled successfully");
+
+      // Модальное окно закроется автоматически через useEffect
+    } catch (error) {
+      console.error("Ошибка при отмене атаки:", error);
+      // В случае ошибки все равно закрываем модальное окно
+      setIdOpenAttackModal(false);
+      setAttackModalData(null);
     }
   };
 
@@ -74,14 +212,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   return (
     <div className={styles.gameBoard}>
-      <div className={styles.tableBackground} />
       <GameHeader
         gameState={gameState}
         onEndTurn={handleEndTurn}
         isCurrentPlayerTurn={currentPlayerId === myPlayer?.id}
         actions={[
           <Button
-            onClick={() => setOpenMarket(true)}
+            onClick={() => {
+              console.log("Opening market");
+              setIsOpenMarket(true);
+            }}
             variant="outline"
             className="border-krutagidon-red text-white"
           >
@@ -92,24 +232,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className={styles.gridContainer}>
         {/* Центральная область */}
         <div className={styles.centerArea}>
-          <CenterArea cards={currentPlayer.playArea} />
+          <CenterArea cards={currentPlayer?.playArea || []} />
         </div>
 
         {/* Текущий игрок внизу */}
-        {currentPlayer && (
+        {myPlayer && (
           <div className={styles.currentPlayer}>
             <PlayerArea
-              player={currentPlayer}
+              player={myPlayer}
               position="bottom"
-              isCurrentPlayer={true}
-              isPlayerMove={currentPlayerId === gameState.currentPlayer}
+              isCurrentPlayer={myPlayer.id === gameState.currentPlayer}
+              isPlayerMove={myPlayer.id === gameState.currentPlayer}
               onPlayCard={handlePlayCard}
             />
           </div>
         )}
 
         {/* Остальные игроки по фиксированным позициям */}
-        {positionedOtherPlayers.map(({ player, position }, index) => (
+        {/* {positionedOtherPlayers.map(({ player, position }, index) => (
           <div key={player.id} className={styles[position]}>
             <PlayerArea
               player={player}
@@ -119,16 +259,34 @@ const GameBoard: React.FC<GameBoardProps> = ({
               onPlayCard={handlePlayCard}
             />
           </div>
-        ))}
+        ))} */}
       </div>
+
       <MarketplaceModal
-        open={openMarket}
+        open={isOpenMarket}
         marketplace={gameState.currentMarketplace}
         legendaryMarketplace={gameState.currentLegendaryMarketplace}
         strayMagicMarket={gameState.strayMagicDeck}
         playerPower={currentPlayer?.power || 0}
-        onClose={() => setOpenMarket(false)}
+        onClose={() => setIsOpenMarket(false)}
         handleBuyCard={() => {}}
+      />
+
+      <AttackModal
+        open={idOpenAttackModal}
+        onClose={handleCancelAttack}
+        targets={
+          attackModalData
+            ? players.filter((p) => attackModalData.targets.includes(p.id))
+            : []
+        }
+        damage={
+          attackModalData && myPlayer
+            ? myPlayer.hand.find((c) => c.id === attackModalData.cardId)
+                ?.damage || 0
+            : 0
+        }
+        onAttack={handleAttack}
       />
     </div>
   );

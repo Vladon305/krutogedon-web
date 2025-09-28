@@ -48,8 +48,14 @@ export const onGameUpdate = (callback: (gameState: GameState) => void) => {
       console.log("Received gameUpdate:", updatedGameState);
       callback(updatedGameState);
     });
+
+    return () => {
+      socket?.off("gameUpdate", callback);
+      console.log("Unsubscribed from gameUpdate");
+    };
   } else {
     console.error("Socket is not initialized. Call initSocket first.");
+    return () => {};
   }
 };
 
@@ -130,12 +136,17 @@ export const onAttackTargetRequired = (
   callback: (data: { playerId: string; data: any }) => void
 ) => {
   if (socket) {
-    socket.on("attackTargetRequired", (data) => {
-      console.log("Received attackTargetRequired:", data);
-      callback(data);
-    });
+    socket.on("attackTargetRequired", callback);
+    console.log("Subscribed to attackTargetRequired");
+
+    // Возвращаем функцию для отписки
+    return () => {
+      socket?.off("attackTargetRequired", callback);
+      console.log("Unsubscribed from attackTargetRequired");
+    };
   } else {
     console.error("Socket is not initialized. Call initSocket first.");
+    return () => {};
   }
 };
 
@@ -143,12 +154,17 @@ export const onAttackTargetNotification = (
   callback: (data: { playerId: string; cardId: number }) => void
 ) => {
   if (socket) {
-    socket.on("attackTargetNotification", (data) => {
-      console.log("Received attackTargetNotification:", data);
-      callback(data);
-    });
+    socket.on("attackTargetNotification", callback);
+    console.log("Subscribed to attackTargetNotification");
+
+    // Возвращаем функцию для отписки
+    return () => {
+      socket?.off("attackTargetNotification", callback);
+      console.log("Unsubscribed from attackTargetNotification");
+    };
   } else {
     console.error("Socket is not initialized. Call initSocket first.");
+    return () => {};
   }
 };
 
@@ -181,23 +197,16 @@ export const onDefenseRequired = (
   }) => void
 ) => {
   if (socket) {
-    socket.on(
-      "defenseRequired",
-      (data: {
-        gameId: string;
-        attackData: {
-          attackerId: number;
-          opponentId: number;
-          cardId: number;
-          damage: number;
-        };
-      }) => {
-        console.log("Received defenseRequired:", data);
-        callback(data);
-      }
-    );
+    socket.on("defenseRequired", callback);
+    console.log("Subscribed to defenseRequired");
+
+    return () => {
+      socket?.off("defenseRequired", callback);
+      console.log("Unsubscribed from defenseRequired");
+    };
   } else {
     console.error("Socket is not initialized. Call initSocket first.");
+    return () => {};
   }
 };
 
@@ -210,20 +219,16 @@ export const onAttackNotification = (
   }) => void
 ) => {
   if (socket) {
-    socket.on(
-      "attackNotification",
-      (data: {
-        attackerId: string;
-        opponentId: string;
-        cardId: number;
-        damage: number;
-      }) => {
-        console.log("Received attackNotification:", data);
-        callback(data);
-      }
-    );
+    socket.on("attackNotification", callback);
+    console.log("Subscribed to attackNotification");
+
+    return () => {
+      socket?.off("attackNotification", callback);
+      console.log("Unsubscribed from attackNotification");
+    };
   } else {
     console.error("Socket is not initialized. Call initSocket first.");
+    return () => {};
   }
 };
 

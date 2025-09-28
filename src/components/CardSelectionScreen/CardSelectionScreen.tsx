@@ -2,10 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import GameCard from "@/components/GameCard/GameCard";
 import { ArrowLeft } from "lucide-react";
-import { playerAreas } from "@/data/playerAreas";
-import { properties } from "@/data/properties";
-import { familiars } from "@/data/familiars";
-import { cn, getRandomElements } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import {
@@ -35,6 +32,7 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
   socketGameState,
   onComplete,
 }) => {
+  // ✅ ВОЗВРАЩЕНО: 3 шага выбора (property → familiar → playerArea)
   const [step, setStep] = useState(1);
   const [selectedCards, setSelectedCards] = useState<
     Array<Card | SelectedPlayArea | PlayArea>
@@ -58,6 +56,14 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
     (p) => p.selectionCompleted
   );
 
+  // ✅ ДОБАВЛЕНО: проверка очереди выбора
+  const isMyTurnToSelect =
+    socketGameState.selectionQueue &&
+    socketGameState.currentSelectionPlayerIndex !== undefined &&
+    socketGameState.selectionQueue[
+      socketGameState.currentSelectionPlayerIndex
+    ] === user?.id;
+
   const { gameId } = useParams<{ gameId: string }>();
 
   useEffect(() => {
@@ -74,11 +80,18 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
       }
     });
 
-    if (gameId && user?.id && accessToken && !myPlayer?.selectionCompleted) {
+    // ✅ ИЗМЕНЕНО: проверка на очередь выбора
+    if (
+      gameId &&
+      user?.id &&
+      accessToken &&
+      !myPlayer?.selectionCompleted &&
+      isMyTurnToSelect
+    ) {
       setSelectionRequired(true);
       fetchOptions();
     }
-  }, [gameId, user?.id, accessToken]);
+  }, [gameId, user?.id, accessToken, isMyTurnToSelect]);
 
   const fetchOptions = async () => {
     setLoading(true);
@@ -100,12 +113,14 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
     }
   };
 
+  // ✅ ВОЗВРАЩЕНО: 3 шага выбора
   const stepCards = {
     1: properties,
     2: familiars,
     3: playerAreas,
   };
 
+  // ✅ ВОЗВРАЩЕНО: заголовки для 3 шагов
   const stepTitles = {
     1: "Выберите свойство",
     2: "Выберите фамильяра",
@@ -116,6 +131,7 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
     const newSelectedCards = [...selectedCards, card];
     setSelectedCards(newSelectedCards);
 
+    // ✅ ВОЗВРАЩЕНО: логика для 3 шагов
     if (step < 3) {
       setStep(step + 1);
     } else {
@@ -150,7 +166,8 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
       });
   }
 
-  if (!selectionRequired || myPlayer?.selectionCompleted) {
+  // ✅ ИЗМЕНЕНО: проверка на очередь выбора
+  if (!selectionRequired || myPlayer?.selectionCompleted || !isMyTurnToSelect) {
     if (myPlayer?.selectionCompleted && !allPlayersSelected) {
       return (
         <div className={styles.cardSelectionScreen}>
@@ -166,6 +183,23 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
         </div>
       );
     }
+
+    // ✅ ДОБАВЛЕНО: сообщение о том, что сейчас не ваша очередь
+    if (!isMyTurnToSelect && !myPlayer?.selectionCompleted) {
+      return (
+        <div className={styles.cardSelectionScreen}>
+          <div className={styles.cardSelectionScreen__panel}>
+            <h2 className={styles.cardSelectionScreen__title}>
+              Ожидание вашей очереди...
+            </h2>
+            <p className={styles.cardSelectionScreen__description}>
+              Пожалуйста, подождите. Сейчас другие игроки выбирают карты.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     return null;
   }
 
@@ -205,6 +239,7 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
           <h2 className={styles.cardSelectionScreen__title}>
             {stepTitles[step as keyof typeof stepTitles]}
           </h2>
+          {/* ✅ ВОЗВРАЩЕНО: 3 точки индикатора */}
           <div className={styles.cardSelectionScreen__stepIndicator}>
             {[1, 2, 3].map((s) => (
               <div
@@ -216,6 +251,7 @@ const CardSelectionScreen: React.FC<CardSelectionScreenProps> = ({
               />
             ))}
           </div>
+          {/* ✅ ВОЗВРАЩЕНО: описание для 3 шагов */}
           <p className={styles.cardSelectionScreen__description}>
             Шаг {step} из 3: Выберите одну карту для вашей стартовой колоды
           </p>
