@@ -123,6 +123,7 @@ const PlayerArea = ({
               discard={player.discard}
               isOpen={isOpenDiscard}
               onClickOpen={() => setIsOpenDiscard(true)}
+              onClose={() => setIsOpenDiscard(false)}
             />
           )}
         </div>
