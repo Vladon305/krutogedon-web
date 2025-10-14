@@ -127,19 +127,17 @@ const PlayerArea = ({
           )}
         </div>
 
-        {isCurrentPlayer && (
+        <div className="w-full">
           <div className="w-full">
-            <div className="w-full">
-              <HandOfCards
-                cards={player.hand}
-                onCardClick={onPlayCard}
-                overlap={70}
-                maxSpread={50}
-                isPlayable={isPlayerMove}
-              />
-            </div>
+            <HandOfCards
+              cards={player.hand}
+              onCardClick={onPlayCard}
+              overlap={70}
+              maxSpread={50}
+              isPlayable={isPlayerMove}
+            />
           </div>
-        )}
+        </div>
       </div>
 
       <div className="flex">
