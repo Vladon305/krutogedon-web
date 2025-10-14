@@ -13,12 +13,16 @@ import {
   makeMove as makeMoveApi,
   selectAttackTarget,
   cancelAttackTarget,
+  resolveDefense,
 } from "@/api/gameApi";
 import {
   onAttackTargetRequired,
   onAttackTargetNotification,
+  onDefenseRequired,
 } from "@/api/socketManager";
 import AttackModal from "../AttackModal/AttackModal";
+import { DefenseDialog } from "../DefenseDialog/DefenseDialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface GameBoardProps {
   game: Game;
@@ -34,11 +38,22 @@ const GameBoard: React.FC<GameBoardProps> = ({
   currentPlayerId,
 }) => {
   const { accessToken } = useAuth();
+  const { toast } = useToast();
   const [isOpenMarket, setIsOpenMarket] = useState(false);
   const [idOpenAttackModal, setIdOpenAttackModal] = useState(false);
   const [attackModalData, setAttackModalData] = useState<{
     cardId: number;
     targets: number[];
+  } | null>(null);
+  const [isDefenseDialogOpen, setIsDefenseDialogOpen] = useState(false);
+  const [defenseData, setDefenseData] = useState<{
+    gameId: string;
+    attackData: {
+      attackerId: number;
+      opponentId: number;
+      cardId: number;
+      damage: number;
+    };
   } | null>(null);
 
   const user = useTypedSelector((state) => state.auth.user);
@@ -130,6 +145,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
       // Например: toast или временное сообщение
     });
 
+    // Подписка на событие защиты
+    const unsubscribeDefense = onDefenseRequired((data) => {
+      console.log("Defense required:", data);
+      if (myPlayer && data.attackData.opponentId === myPlayer.id) {
+        setDefenseData(data);
+        setIsDefenseDialogOpen(true);
+      }
+    });
+
     // Очистка подписок при размонтировании
     return () => {
       if (typeof unsubscribeAttackTarget === "function") {
@@ -138,8 +162,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
       if (typeof unsubscribeAttackNotification === "function") {
         unsubscribeAttackNotification();
       }
+      if (typeof unsubscribeDefense === "function") {
+        unsubscribeDefense();
+      }
     };
-  }, [user?.id]);
+  }, [user?.id, myPlayer]);
 
   const handlePlayCard = async (cardIndex: number) => {
     if (!currentPlayer) return;
@@ -155,8 +182,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
         cardId: currentCard.id,
         // НЕ передаем opponentId для атакующих карт
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Ошибка при разыгрывании карты:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: error.response?.data?.message || error.message || "Произошла ошибка при разыгрывании карты",
+      });
     }
   };
 
@@ -176,8 +208,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
       // Модальное окно закроется автоматически через useEffect
       // когда pendingPlayCard будет очищен на бэкенде
-    } catch (error) {
+    } catch (error: any) {
       console.error("Ошибка при выборе цели атаки:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: error.response?.data?.message || error.message || "Произошла ошибка при выборе цели атаки",
+      });
     }
   };
 
@@ -196,18 +233,66 @@ const GameBoard: React.FC<GameBoardProps> = ({
       console.log("Attack cancelled successfully");
 
       // Модальное окно закроется автоматически через useEffect
-    } catch (error) {
+    } catch (error: any) {
       console.error("Ошибка при отмене атаки:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: error.response?.data?.message || error.message || "Произошла ошибка при отмене атаки",
+      });
       // В случае ошибки все равно закрываем модальное окно
       setIdOpenAttackModal(false);
       setAttackModalData(null);
     }
   };
 
-  const handleEndTurn = () => {
-    makeMoveApi(accessToken, game.id, { type: "end-turn" })
-      .then(() => makeMove(game.id, user.id.toString(), { type: "end-turn" }))
-      .catch((error) => console.error("Ошибка при завершении хода:", error));
+  const handleEndTurn = async () => {
+    try {
+      await makeMoveApi(accessToken, game.id, { type: "end-turn" });
+      makeMove(game.id, user.id.toString(), { type: "end-turn" });
+    } catch (error: any) {
+      console.error("Ошибка при завершении хода:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: error.response?.data?.message || error.message || "Произошла ошибка при завершении хода",
+      });
+    }
+  };
+
+  const handleDefense = async (defenseCardId: number | null) => {
+    try {
+      if (!defenseData || !myPlayer) {
+        console.error("No defense data or player");
+        return;
+      }
+
+      console.log("Defending with card:", defenseCardId);
+
+      // Вызываем API для разрешения защиты
+      await resolveDefense(
+        accessToken,
+        game.id.toString(),
+        myPlayer.id.toString(),
+        defenseCardId || undefined
+      );
+
+      console.log("Defense resolved successfully");
+
+      // Закрываем диалог
+      setIsDefenseDialogOpen(false);
+      setDefenseData(null);
+    } catch (error: any) {
+      console.error("Ошибка при защите:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: error.response?.data?.message || error.message || "Произошла ошибка при защите",
+      });
+      // В случае ошибки все равно закрываем диалог
+      setIsDefenseDialogOpen(false);
+      setDefenseData(null);
+    }
   };
 
   return (
@@ -269,7 +354,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
         strayMagicMarket={gameState.strayMagicDeck}
         playerPower={currentPlayer?.power || 0}
         onClose={() => setIsOpenMarket(false)}
-        handleBuyCard={() => {}}
+        gameId={game.id.toString()}
+        playerId={myPlayer?.id.toString()}
       />
 
       <AttackModal
@@ -287,6 +373,25 @@ const GameBoard: React.FC<GameBoardProps> = ({
             : 0
         }
         onAttack={handleAttack}
+      />
+
+      <DefenseDialog
+        open={isDefenseDialogOpen}
+        onClose={() => {
+          setIsDefenseDialogOpen(false);
+          setDefenseData(null);
+        }}
+        attackData={defenseData?.attackData || null}
+        defenseCards={
+          myPlayer ? myPlayer.hand.filter((card) => card.isDefense) : []
+        }
+        onDefend={handleDefense}
+        attackerName={
+          defenseData
+            ? players.find((p) => p.id === defenseData.attackData.attackerId)
+                ?.username || "Неизвестный игрок"
+            : ""
+        }
       />
     </div>
   );
