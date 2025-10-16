@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PlayerArea from "../PlayerArea/PlayerArea";
+import OpponentArea from "../OpponentArea/OpponentArea";
 import CenterArea from "../CenterArea/CenterArea";
 import styles from "./GameBoard.module.scss";
 import { Game, GameState, Player } from "@/hooks/types";
@@ -60,29 +61,43 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   const currentPlayer = players.find((player) => player.id === currentPlayerId);
   const myPlayer = gameState.players.find((p: Player) => p.id === user?.id);
-  const otherPlayers = players.filter(
-    (player) => player.id !== currentPlayerId
+  const opponents = gameState.players.filter(
+    (player: Player) => player.id !== myPlayer?.id
   );
 
-  // Определяем позиции для остальных игроков
-  const playerPositions: ("left" | "right" | "top-left" | "top-right")[] = [
-    "right",
-    "left",
-    "top-left",
-    "top-right",
-  ];
+  // Функция для распределения соперников по позициям
+  const getOpponentPositions = () => {
+    const positions: {
+      player: Player;
+      position: "left" | "right" | "top-left" | "top-right";
+    }[] = [];
 
-  // Распределяем остальных игроков по позициям
-  const positionedOtherPlayers = otherPlayers.map((player, index) => ({
-    player,
-    position: playerPositions[index] || "right",
-  }));
+    if (opponents.length === 0) return positions;
 
-  const leftPlayers = otherPlayers.slice(
-    0,
-    Math.floor(otherPlayers.length / 2)
-  );
-  const rightPlayers = otherPlayers.slice(Math.floor(otherPlayers.length / 2));
+    if (opponents.length === 1) {
+      // 1 соперник - слева
+      positions.push({ player: opponents[0], position: "left" });
+    } else if (opponents.length === 2) {
+      // 2 соперника - 1 слева, 1 справа
+      positions.push({ player: opponents[0], position: "left" });
+      positions.push({ player: opponents[1], position: "right" });
+    } else if (opponents.length === 3) {
+      // 3 соперника - 1 слева, 1 справа, 1 сверху слева
+      positions.push({ player: opponents[0], position: "left" });
+      positions.push({ player: opponents[1], position: "right" });
+      positions.push({ player: opponents[2], position: "top-left" });
+    } else if (opponents.length >= 4) {
+      // 4 соперника - 2 слева (один сверху), 2 справа (один сверху)
+      positions.push({ player: opponents[0], position: "left" });
+      positions.push({ player: opponents[1], position: "right" });
+      positions.push({ player: opponents[2], position: "top-left" });
+      positions.push({ player: opponents[3], position: "top-right" });
+    }
+
+    return positions;
+  };
+
+  const positionedOpponents = getOpponentPositions();
 
   // Восстановление состояния при загрузке/обновлении gameState
   useEffect(() => {
@@ -333,18 +348,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </div>
         )}
 
-        {/* Остальные игроки по фиксированным позициям */}
-        {/* {positionedOtherPlayers.map(({ player, position }, index) => (
+        {/* Соперники по позициям */}
+        {positionedOpponents.map(({ player, position }) => (
           <div key={player.id} className={styles[position]}>
-            <PlayerArea
+            <OpponentArea
               player={player}
               position={position}
-              isCurrentPlayer={false}
-              isPlayerMove={currentPlayerId === gameState.currentPlayer}
-              onPlayCard={handlePlayCard}
+              isCurrentPlayer={player.id === gameState.currentPlayer}
             />
           </div>
-        ))} */}
+        ))}
       </div>
 
       <MarketplaceModal

@@ -1,0 +1,32 @@
+.opponentArea {
+  @apply w-full h-full flex flex-col;
+  max-width: 200px;
+  min-height: 180px;
+}
+
+// Позиционирование для боковых позиций
+.left,
+.right {
+  @apply justify-start;
+}
+
+// Позиционирование для верхних позиций
+.top-left,
+.top-right {
+  @apply justify-center;
+  max-width: 180px;
+  min-height: 150px;
+}
+
+@media (max-width: 768px) {
+  .opponentArea {
+    max-width: 150px;
+    min-height: 140px;
+  }
+
+  .top-left,
+  .top-right {
+    max-width: 140px;
+    min-height: 120px;
+  }
+}
