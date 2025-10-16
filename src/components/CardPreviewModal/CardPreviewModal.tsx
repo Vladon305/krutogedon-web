@@ -3,6 +3,8 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogPortal,
+  DialogOverlay,
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { Card } from "@/hooks/types";
@@ -25,23 +27,28 @@ const CardPreviewModal: React.FC<CardPreviewModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent
-        className={styles.cardPreviewModal}
-        onClick={onClose}
-      >
-        {/* Скрытый заголовок для accessibility */}
-        <VisuallyHidden>
-          <DialogTitle>{card.name}</DialogTitle>
-        </VisuallyHidden>
+      <DialogPortal>
+        {/* Кастомный overlay с высоким z-index только для CardPreview */}
+        <DialogOverlay className={styles.cardPreviewModal__overlay} />
 
-        <div className={styles.cardPreviewModal__imageWrapper}>
-          <img
-            src={imageSrc}
-            alt={card.name}
-            className={styles.cardPreviewModal__image}
-          />
-        </div>
-      </DialogContent>
+        <DialogContent
+          className={styles.cardPreviewModal}
+          onClick={onClose}
+        >
+          {/* Скрытый заголовок для accessibility */}
+          <VisuallyHidden>
+            <DialogTitle>{card.name}</DialogTitle>
+          </VisuallyHidden>
+
+          <div className={styles.cardPreviewModal__imageWrapper}>
+            <img
+              src={imageSrc}
+              alt={card.name}
+              className={styles.cardPreviewModal__image}
+            />
+          </div>
+        </DialogContent>
+      </DialogPortal>
     </Dialog>
   );
 };
