@@ -24,6 +24,8 @@ import {
   SelectedPlayArea,
   WizardPropertyToken,
 } from "@/hooks/types";
+import { CardPreviewProvider, useCardPreview } from "@/context/CardPreviewContext";
+import CardPreviewModal from "@/components/CardPreviewModal/CardPreviewModal";
 
 const GamePage: React.FC = () => {
   const { gameId } = useParams<{ gameId: string }>();
@@ -171,6 +173,48 @@ const GamePage: React.FC = () => {
   }
 
   return (
+    <CardPreviewProvider>
+      <GamePageInner
+        gameId={gameId}
+        user={user}
+        gameStarted={gameStarted}
+        setupCompleted={setupCompleted}
+        socketGameState={socketGameState}
+        game={game}
+        error={error}
+        currentPlayer={currentPlayer}
+        handleCardSelectionComplete={handleCardSelectionComplete}
+        setSetupCompleted={setSetupCompleted}
+      />
+    </CardPreviewProvider>
+  );
+};
+
+// Внутренний компонент для использования useCardPreview
+const GamePageInner: React.FC<{
+  gameId: string;
+  user: any;
+  gameStarted: boolean;
+  setupCompleted: boolean;
+  socketGameState: GameState;
+  game: Game;
+  error: string | null;
+  currentPlayer: Player;
+  handleCardSelectionComplete: any;
+  setSetupCompleted: any;
+}> = ({
+  gameStarted,
+  setupCompleted,
+  socketGameState,
+  game,
+  error,
+  currentPlayer,
+  handleCardSelectionComplete,
+  setSetupCompleted,
+}) => {
+  const { selectedCard, hideCardPreview } = useCardPreview();
+
+  return (
     <div className="h-screen overflow-hidden">
       {error && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 glass-panel p-4 text-red-500">
@@ -178,11 +222,6 @@ const GamePage: React.FC = () => {
         </div>
       )}
       {gameStarted ? (
-        // <GameBoard
-        //   game={game}
-        //   socketGameState={socketGameState}
-        //   setSocketGameState={setSocketGameState}
-        // />
         <GameBoard
           game={game}
           gameState={socketGameState}
@@ -197,6 +236,13 @@ const GamePage: React.FC = () => {
       ) : (
         <GameSetup onStartGame={() => setSetupCompleted(true)} />
       )}
+
+      {/* Модальное окно просмотра карты */}
+      <CardPreviewModal
+        card={selectedCard}
+        open={!!selectedCard}
+        onClose={hideCardPreview}
+      />
     </div>
   );
 };

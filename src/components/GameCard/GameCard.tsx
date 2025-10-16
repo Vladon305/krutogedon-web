@@ -3,6 +3,7 @@ import { Card as GameCardType } from "@/types/game";
 import { cn, getImageUrl } from "@/lib/utils";
 import { Card } from "@/hooks/types";
 import styles from "./GameCard.module.scss";
+import { useCardPreview } from "@/context/CardPreviewContext";
 
 interface GameCardProps {
   card: Card;
@@ -22,11 +23,26 @@ const GameCard: React.FC<GameCardProps> = ({
   showBack = false,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { showCardPreview } = useCardPreview();
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    // Проверяем, зажата ли клавиша Ctrl (или Cmd на Mac)
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      e.stopPropagation();
+      showCardPreview(card);
+      return;
+    }
+
+    // Обычный клик для игры карты
     if (isPlayable && onClick) {
       onClick();
     }
+  };
+
+  const handleRightClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Предотвращаем стандартное контекстное меню
+    showCardPreview(card);
   };
 
   const imageSrc = "http://localhost:5001/uploads/" + card.imageUrl;
@@ -45,6 +61,7 @@ const GameCard: React.FC<GameCardProps> = ({
             className
           )}
           onClick={handleClick}
+          onContextMenu={handleRightClick}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -62,6 +79,7 @@ const GameCard: React.FC<GameCardProps> = ({
             className
           )}
           onClick={handleClick}
+          onContextMenu={handleRightClick}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
